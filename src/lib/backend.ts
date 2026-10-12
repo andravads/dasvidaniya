@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import * as Linking from "expo-linking";
+import { nativeAuthCallback } from "./authCallback";
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 export function authenticationRedirect() {
@@ -31,6 +32,41 @@ export const supabase =
         },
       })
     : null;
+export function listenForNativeAuthentication(
+  onError: (message: string) => void,
+) {
+  if (Platform.OS === "web" || !supabase) return () => {};
+  let active = true;
+  const accept = async (url: string | null) => {
+    if (!active || !url) return;
+    try {
+      const tokens = nativeAuthCallback(url);
+      if (!tokens || !active) return;
+      const { error } = await supabase!.auth.setSession(tokens);
+      if (error)
+        throw new Error(
+          "The email link could not sign you in. Request a new email.",
+        );
+    } catch (e) {
+      if (active)
+        onError(
+          e instanceof Error ? e.message : "Could not open the email link.",
+        );
+    }
+  };
+  const subscription = Linking.addEventListener("url", ({ url }) => {
+    void accept(url);
+  });
+  void Linking.getInitialURL()
+    .then(accept)
+    .catch(() => {
+      if (active) onError("Could not open the email link.");
+    });
+  return () => {
+    active = false;
+    subscription.remove();
+  };
+}
 export async function invoke(name: string, body: Record<string, unknown>) {
   if (!supabase)
     throw new Error(

@@ -1,5 +1,29 @@
 # Validation — 9 October 2026
 
+## Photo and login update — 12 October 2026
+
+The browser app is published at https://dasvidaniya.vercel.app. The confirmation,
+resend and password-reset redirect fix was published separately; GitHub's Vercel
+status reports a successful deployment for commit `eb6e9b4`.
+
+The new photo carousel flow is prepared on a review branch; its fourth Edge
+Function is not deployed. Strict TypeScript, frozen Deno checks (including the
+generated dashboard copy), web production export, and 53 unit/security/database
+tests passed. All 38 desktop/mobile browser checks passed across a complete run
+and targeted reruns: two page-initialization checks hit their five-second wait
+during concurrent native bundling and passed when rerun. Carousel export checks
+exercise actual PNG rasterization, ZIP structure/checksums, slide order, separate
+account captions, editing and draft persistence using simulated cloud responses.
+
+iOS and Android Hermes JavaScript bundles exported successfully. They are not
+signed native builds; no Expo account, EAS build, physical-device test or store
+submission has been completed. Live photo AI, the user's email delivery, live
+signed-in cloud sync, and Supabase administrative URL settings are unverified.
+No production photo or AI provider call was used in testing. See
+[carousel implementation and deployment review](CAROUSELS.md).
+
+The remaining entries below describe earlier checks and their historical limits.
+
 Latest update — 12 October 2026: the user-approved browser rebuild and UI
 simplification are complete. Production export and strict TypeScript passed;
 42 unit/domain/provider/PostgreSQL tests and 34 desktop/mobile browser checks

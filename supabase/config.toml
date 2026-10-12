@@ -20,3 +20,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.account]
 verify_jwt = false
+[functions.carousel]
+verify_jwt = false

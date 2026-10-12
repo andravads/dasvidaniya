@@ -16,8 +16,10 @@ import {
   styles,
   useColors,
   Busy,
+  Disclosure,
 } from "../components/UI";
 import { TaskEditor } from "../components/TaskEditor";
+import { CarouselStudio } from "../components/CarouselStudio";
 import { TaskRow } from "../components/Tasks";
 import { useItems, useStore } from "../state/Store";
 import {
@@ -683,7 +685,7 @@ const pipeline = [
   "Published",
 ];
 function Content() {
-  const { prefs, put, saveCaption, saveTask } = useStore(),
+  const { prefs, put, saveCaption, saveTask, session } = useStore(),
     c = useColors();
   const drafts = useItems("draft");
   const [account, setAccount] = useState(accounts[1]),
@@ -696,7 +698,8 @@ function Content() {
     [error, setError] = useState("");
   return (
     <View style={{ gap: 16 }}>
-      <Card>
+      <CarouselStudio key={session?.user.id ?? "local"} />
+      <Disclosure title="Write a draft manually">
         <Label style={styles.heading}>Create something worth sharing</Label>
         <Choice options={accounts} value={account} onChange={setAccount} />
         <Field label="Content topic" value={topic} onChangeText={setTopic} />
@@ -765,10 +768,9 @@ function Content() {
         {!!error && <Label style={{ color: c.danger }}>{error}</Label>}
         <Label small muted>
           No social accounts are connected. Scheduling creates a local calendar
-          task; publishing is manual. Carousel/video editing and exports are
-          planned extensions.
+          task; publishing is manual.
         </Label>
-      </Card>
+      </Disclosure>
       {drafts
         .filter((r) => r.payload.account === account)
         .map((r) => (

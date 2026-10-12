@@ -7,7 +7,11 @@ import React, {
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Session } from "@supabase/supabase-js";
-import { supabase, invoke } from "../lib/backend";
+import {
+  supabase,
+  invoke,
+  listenForNativeAuthentication,
+} from "../lib/backend";
 import {
   RecordItem,
   Kind,
@@ -138,9 +142,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           void select(s);
         }
       });
+      const stopAuthLinks = listenForNativeAuthentication(setError);
       return () => {
         alive = false;
         data.subscription.unsubscribe();
+        stopAuthLinks();
       };
     }
     void select(null);

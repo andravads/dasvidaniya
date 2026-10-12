@@ -105,6 +105,9 @@ test("caption draft can be saved and scheduled without claiming publishing", asy
     .getByRole("button", { name: "Content Studio", exact: true })
     .click();
   await page
+    .getByRole("button", { name: "Write a draft manually", exact: true })
+    .click();
+  await page
     .getByLabel("Content topic", { exact: true })
     .fill("Consistent gym routine");
   await page
