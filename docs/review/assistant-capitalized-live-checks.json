@@ -1,0 +1,26 @@
+{
+  "checked_on": "2026-10-12",
+  "actual_function_name": "Assistant",
+  "app_expected_function_name": "assistant",
+  "checks": [
+    {
+      "check": "no_login",
+      "status": 401,
+      "body": "{\"error\":\"Authentication required\"}",
+      "access_control_allow_origin": "*"
+    },
+    {
+      "check": "invalid_login",
+      "status": 401,
+      "body": "{\"error\":\"Invalid or expired session\"}",
+      "access_control_allow_origin": "*"
+    },
+    {
+      "check": "browser_preflight",
+      "status": 204,
+      "body": "",
+      "access_control_allow_origin": "*"
+    }
+  ],
+  "authenticated_ai_call_tested": false
+}

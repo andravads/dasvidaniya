@@ -1,0 +1,22 @@
+project_id = "homies-os"
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+[db]
+port = 54322
+major_version = 17
+[auth]
+enabled = true
+site_url = "http://localhost:8081"
+additional_redirect_urls = ["homiesos://", "http://localhost:8081"]
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+[functions.assistant]
+verify_jwt = false
+[functions.documents]
+verify_jwt = false
+[functions.account]
+verify_jwt = false

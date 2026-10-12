@@ -1,0 +1,96 @@
+{
+  "checked_on": "2026-10-12",
+  "method": "GET only, publishable API key, no authenticated user session",
+  "user_reported_sql_success": true,
+  "checks": [
+    {
+      "path": "/auth/v1/settings",
+      "status": 200,
+      "response_bytes": 611
+    },
+    {
+      "path": "/rest/v1/workspace_records?select=*&limit=0",
+      "status": 401,
+      "response": {
+        "code": "42501",
+        "details": null,
+        "hint": "Grant the required privileges to the current role with: GRANT SELECT ON public.workspace_records TO anon;",
+        "message": "permission denied for table workspace_records"
+      }
+    },
+    {
+      "path": "/rest/v1/documents?select=*&limit=0",
+      "status": 401,
+      "response": {
+        "code": "42501",
+        "details": null,
+        "hint": "Grant the required privileges to the current role with: GRANT SELECT ON public.documents TO anon;",
+        "message": "permission denied for table documents"
+      }
+    },
+    {
+      "path": "/rest/v1/ai_spaces?select=*&limit=0",
+      "status": 401,
+      "response": {
+        "code": "42501",
+        "details": null,
+        "hint": "Grant the required privileges to the current role with: GRANT SELECT ON public.ai_spaces TO anon;",
+        "message": "permission denied for table ai_spaces"
+      }
+    },
+    {
+      "path": "/rest/v1/ai_requests?select=*&limit=0",
+      "status": 401,
+      "response": {
+        "code": "42501",
+        "details": null,
+        "hint": "Grant the required privileges to the current role with: GRANT SELECT ON public.ai_requests TO anon;",
+        "message": "permission denied for table ai_requests"
+      }
+    },
+    {
+      "path": "/rest/v1/background_jobs?select=*&limit=0",
+      "status": 401,
+      "response": {
+        "code": "42501",
+        "details": null,
+        "hint": "Grant the required privileges to the current role with: GRANT SELECT ON public.background_jobs TO anon;",
+        "message": "permission denied for table background_jobs"
+      }
+    },
+    {
+      "path": "/rest/v1/tasks?select=*&limit=0",
+      "status": 401,
+      "response": {
+        "code": "42501",
+        "details": null,
+        "hint": null,
+        "message": "permission denied for view tasks"
+      }
+    },
+    {
+      "path": "/functions/v1/assistant",
+      "status": 404,
+      "response": {
+        "code": "NOT_FOUND",
+        "message": "Requested function was not found"
+      }
+    },
+    {
+      "path": "/functions/v1/documents",
+      "status": 404,
+      "response": {
+        "code": "NOT_FOUND",
+        "message": "Requested function was not found"
+      }
+    },
+    {
+      "path": "/functions/v1/account",
+      "status": 404,
+      "response": {
+        "code": "NOT_FOUND",
+        "message": "Requested function was not found"
+      }
+    }
+  ]
+}

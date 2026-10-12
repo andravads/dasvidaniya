@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Homies OS",
+    "slug": "homies-os",
+    "scheme": "homiesos",
+    "version": "0.1.0",
+    "orientation": "default",
+    "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
+    "plugins": [
+      "expo-router",
+      "expo-notifications",
+      "expo-document-picker",
+      "expo-secure-store",
+      "expo-sharing"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.homies.os",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Photograph a card or authorized document for your workspace.",
+        "NSFaceIDUsageDescription": "Unlock your Homies OS session."
+      }
+    },
+    "android": {
+      "package": "com.homies.os"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

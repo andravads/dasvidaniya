@@ -1,0 +1,97 @@
+{
+  "review_date": "2026-10-12",
+  "source": "user-exported read-only SQL Editor configuration",
+  "public_objects": [],
+  "existing_policy_count": 0,
+  "existing_bucket_count": 0,
+  "existing_document_column_count": 0,
+  "public_functions": [
+    {
+      "proacl": null,
+      "proname": "rls_auto_enable",
+      "arguments": "",
+      "proconfig": [
+        "search_path=pg_catalog"
+      ],
+      "prosecdef": true
+    }
+  ],
+  "client_role_memberships": [],
+  "public_default_grants": [
+    {
+      "creator": "supabase_admin",
+      "nspname": "public",
+      "defaclacl": [
+        "postgres=rwU/supabase_admin",
+        "anon=rwU/supabase_admin",
+        "authenticated=rwU/supabase_admin",
+        "service_role=rwU/supabase_admin"
+      ],
+      "defaclobjtype": "S"
+    },
+    {
+      "creator": "supabase_admin",
+      "nspname": "public",
+      "defaclacl": [
+        "postgres=arwdDxtm/supabase_admin",
+        "anon=arwdDxtm/supabase_admin",
+        "authenticated=arwdDxtm/supabase_admin",
+        "service_role=arwdDxtm/supabase_admin"
+      ],
+      "defaclobjtype": "r"
+    },
+    {
+      "creator": "supabase_admin",
+      "nspname": "public",
+      "defaclacl": [
+        "postgres=X/supabase_admin",
+        "anon=X/supabase_admin",
+        "authenticated=X/supabase_admin",
+        "service_role=X/supabase_admin"
+      ],
+      "defaclobjtype": "f"
+    },
+    {
+      "creator": "postgres",
+      "nspname": "public",
+      "defaclacl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=Dxtm/postgres",
+        "service_role=Dxtm/postgres"
+      ],
+      "defaclobjtype": "r"
+    },
+    {
+      "creator": "postgres",
+      "nspname": "public",
+      "defaclacl": [
+        "postgres=rwU/postgres"
+      ],
+      "defaclobjtype": "S"
+    },
+    {
+      "creator": "postgres",
+      "nspname": "public",
+      "defaclacl": [
+        "postgres=X/postgres"
+      ],
+      "defaclobjtype": "f"
+    }
+  ],
+  "migrations": [
+    {
+      "migration": "202610090001_workspace.sql",
+      "sha256": "b644b828994fb0858fbe083be16fa732c38261b0bf0ddea58d37ce42e73a7c75"
+    },
+    {
+      "migration": "202610120001_document_permissions.sql",
+      "sha256": "44447a441b6c81f74764ce871efa661567d2d0b96239a6d01f4a529a9fd7fca0"
+    }
+  ],
+  "transaction_bundle_sha256": "5baf4664cbc215dcaf1bf5c200bddb18487531556db37c595b4c885cfb573dec",
+  "approval_status": "user_executed_database_setup_in_sql_editor",
+  "applied": true,
+  "application_evidence": "User reported Success. No rows returned; subsequent GET requests recognize all five app tables and tasks view, denying anon access.",
+  "application_method": "Manual SQL Editor transaction from chat; Supabase CLI migration history was not registered by that SQL."
+}

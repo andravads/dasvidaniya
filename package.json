@@ -1,0 +1,63 @@
+{
+  "name": "homies-os",
+  "description": "Personal command center for work, business and daily life",
+  "license": "0BSD",
+  "version": "0.1.0",
+  "main": "expo-router/entry",
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@supabase/supabase-js": "^2.99.0",
+    "expo": "~57.0.27",
+    "expo-constants": "~57.0.21",
+    "expo-document-picker": "~57.0.3",
+    "expo-file-system": "~57.0.7",
+    "expo-linking": "~57.0.12",
+    "expo-local-authentication": "~57.0.3",
+    "expo-notifications": "~57.0.22",
+    "expo-router": "^57.0.0",
+    "expo-secure-store": "~57.0.4",
+    "expo-sharing": "~57.0.22",
+    "expo-status-bar": "~57.0.1",
+    "lucide-react-native": "^0.577.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "^4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
+    "react-native-url-polyfill": "^3.0.0",
+    "react-native-web": "^0.21.0",
+    "react-native-worklets": "^0.10.1",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@playwright/test": "^1.58.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "~19.2.2",
+    "deno": "^2.9.6",
+    "prettier": "^3.9.9",
+    "typescript": "~6.0.3",
+    "vitest": "^4.0.0"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build:web": "expo export --platform web",
+    "test:e2e": "playwright test",
+    "check:server": "deno check --frozen-lockfile --config supabase/functions/deno.json supabase/functions/assistant/index.ts supabase/functions/documents/index.ts supabase/functions/account/index.ts",
+    "serve:web": "node scripts/serve.mjs"
+  },
+  "private": true,
+  "overrides": {
+    "xcode": {
+      "uuid": "11.1.1"
+    }
+  }
+}
