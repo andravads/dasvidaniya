@@ -167,10 +167,19 @@ export function CarouselStudio() {
     try {
       const images = [];
       for (const photo of photos) {
-        const png = await renderPNG(thumbnails.current[photo.id], 512, 640);
+        let png = await renderPNG(thumbnails.current[photo.id], 512, 640);
+        // Detailed phone photos compress poorly as PNGs. Shrink only the AI
+        // preview; exports still render the original at 1080 × 1350.
+        for (const [width, height] of [
+          [256, 320],
+          [128, 160],
+        ]) {
+          if (png.length <= 450000 - 22) break;
+          png = await renderPNG(thumbnails.current[photo.id], width, height);
+        }
         if (png.length > 450000 - 22)
           throw new Error(
-            "This photo is too detailed. Choose a smaller image.",
+            "This photo could not be prepared. Try choosing it again.",
           );
         images.push("data:image/png;base64," + png);
       }

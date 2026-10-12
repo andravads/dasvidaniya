@@ -13,6 +13,13 @@ signed-in photo generation and the user's email flow remain unverified because
 Codex does not have the user's login. The tests and native bundle validation below
 still apply to the unchanged application code. No new migrations were applied.
 
+A final frontend fix automatically shrinks detailed photo previews instead of
+rejecting them for poor PNG compression. Strict TypeScript and web production
+export passed again. The carousel browser flow passed on desktop and mobile with
+a deterministic high-entropy image, verifying automatic preview resizing, the
+unchanged 1080 × 1350 export, captions and idempotent draft saves. The deployed
+server code remains unchanged.
+
 ## Photo and login update — 12 October 2026
 
 The browser app is published at https://dasvidaniya.vercel.app. The confirmation,

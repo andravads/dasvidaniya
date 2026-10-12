@@ -22,7 +22,9 @@ The app does not post to external accounts. Optional context and language are
 under an expandable control; choosing photos is enough to start.
 
 Photos are kept in page memory, not uploaded to the database or included in cloud
-sync. Preparing explicitly sends 512 × 640 PNG previews to OpenAI. Provider
+sync. Preparing explicitly sends PNG previews of up to 512 × 640 to OpenAI;
+detailed photos automatically use smaller previews to stay within request limits.
+Finished slide exports still use the original photos. Provider
 `store: false` is used; this is not a promise of zero provider retention. Each
 preparation uses one request from the existing daily and per-minute AI budget.
 Download before leaving or reloading the page. Saving drafts stores only the

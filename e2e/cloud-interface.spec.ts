@@ -1,6 +1,45 @@
 import { test, expect, Page } from "@playwright/test";
 import fs from "node:fs";
 import { execFileSync } from "node:child_process";
+import { crc32, deflateSync } from "node:zlib";
+
+// High-entropy pixels exercise real photo-size pressure without user photos.
+function detailedPNG() {
+  const width = 512,
+    height = 640,
+    rows = Buffer.alloc(height * (width * 4 + 1));
+  let seed = 123456789;
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const offset = y * (width * 4 + 1) + 1 + x * 4;
+      for (let c = 0; c < 3; c++) {
+        seed ^= seed << 13;
+        seed ^= seed >>> 17;
+        seed ^= seed << 5;
+        rows[offset + c] = seed & 255;
+      }
+      rows[offset + 3] = 255;
+    }
+  function chunk(name: string, data: Buffer) {
+    const type = Buffer.from(name),
+      length = Buffer.alloc(4),
+      checksum = Buffer.alloc(4);
+    length.writeUInt32BE(data.length);
+    checksum.writeUInt32BE(crc32(Buffer.concat([type, data])));
+    return Buffer.concat([length, type, data, checksum]);
+  }
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(width, 0);
+  header.writeUInt32BE(height, 4);
+  header[8] = 8;
+  header[9] = 6;
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk("IHDR", header),
+    chunk("IDAT", deflateSync(rows)),
+    chunk("IEND", Buffer.alloc(0)),
+  ]);
+}
 
 // Isolate browser integration from real user creation, provider charges and
 // production writes. Database isolation is tested separately in PostgreSQL.
@@ -349,7 +388,7 @@ test("photos become ordered carousel images and separate account captions", asyn
     {
       name: "first.png",
       mimeType: "image/png",
-      buffer: fs.readFileSync("assets/icon.png"),
+      buffer: detailedPNG(),
     },
     {
       name: "second.png",
@@ -378,10 +417,11 @@ test("photos become ordered carousel images and separate account captions", asyn
   expect(invocation.authorization).toBe("Bearer " + token);
   expect(invocation.body.category).toBe("Gym");
   expect(invocation.body.images).toHaveLength(2);
-  for (const image of invocation.body.images) {
+  for (const [index, image] of invocation.body.images.entries()) {
     const bytes = Buffer.from(image.split(",")[1], "base64");
-    expect(bytes.readUInt32BE(16)).toBe(512);
-    expect(bytes.readUInt32BE(20)).toBe(640);
+    expect(bytes.readUInt32BE(16)).toBe(index === 0 ? 512 : 256);
+    expect(bytes.readUInt32BE(20)).toBe(index === 0 ? 640 : 320);
+    expect(image.length).toBeLessThanOrEqual(450000);
   }
   await expect(
     page.getByLabel("TikTok · Gym post caption", { exact: true }),
