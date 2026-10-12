@@ -229,3 +229,68 @@ test("a sign-in failure is clearly shown and account settings remain usable", as
     "browser-test@example.com",
   );
 });
+
+test("confirmation, resend and recovery links return to the app instead of localhost defaults", async ({
+  page,
+}) => {
+  const projectURL = process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
+  if (!projectURL) throw new Error("Public project URL is required");
+  const requests: { url: string; body: any }[] = [];
+  await page.route(projectURL + "/auth/v1/**", async (route) => {
+    const req = route.request();
+    if (req.method() === "OPTIONS")
+      return route.fulfill({
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers":
+            "authorization,apikey,content-type,x-client-info",
+        },
+      });
+    requests.push({ url: req.url(), body: req.postDataJSON() });
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: "33333333-3333-4333-8333-333333333333",
+        email: "browser-test@example.com",
+        identities: [],
+      }),
+    });
+  });
+  await page.goto("/profile");
+  await page
+    .getByLabel("Email", { exact: true })
+    .fill("browser-test@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("test-password-only");
+  await page
+    .getByRole("button", { name: "Create account", exact: true })
+    .click();
+  await expect(
+    page.getByText("Check your email to confirm your account.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Resend confirmation email", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Check your email for a new confirmation link/),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Request password reset", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Open the reset link, then set your new password here/),
+  ).toBeVisible();
+  for (const routeName of ["signup", "resend", "recover"]) {
+    const request = requests.find((r) =>
+      new URL(r.url).pathname.endsWith("/" + routeName),
+    );
+    expect(request).toBeDefined();
+    expect(new URL(request!.url).searchParams.get("redirect_to")).toBe(
+      new URL("/profile", page.url()).toString(),
+    );
+    expect(request!.body.email).toBe("browser-test@example.com");
+  }
+});

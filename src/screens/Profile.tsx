@@ -18,7 +18,7 @@ import {
 } from "../components/UI";
 import { useItems, useStore } from "../state/Store";
 import { defaults, domains, domainLabels } from "../lib/domain";
-import { supabase, invoke } from "../lib/backend";
+import { supabase, invoke, authenticationRedirect } from "../lib/backend";
 import { requestNotifications } from "../lib/notifications";
 import { exportJson } from "../lib/export";
 export default function Profile() {
@@ -159,8 +159,11 @@ export default function Profile() {
                     onPress={() =>
                       void run(async () => {
                         const { data, error } = await supabase!.auth.signUp({
-                          email,
+                          email: email.trim(),
                           password,
+                          options: {
+                            emailRedirectTo: authenticationRedirect(),
+                          },
                         });
                         if (error) throw error;
                         setPassword("");
@@ -174,13 +177,36 @@ export default function Profile() {
                   </Button>
                   <Button
                     secondary
+                    disabled={!email.trim() || busy}
+                    onPress={() =>
+                      void run(async () => {
+                        const { error } = await supabase!.auth.resend({
+                          type: "signup",
+                          email: email.trim(),
+                          options: {
+                            emailRedirectTo: authenticationRedirect(),
+                          },
+                        });
+                        if (error) throw error;
+                      }, "Check your email for a new confirmation link. Use the newest email.")
+                    }
+                  >
+                    Resend confirmation email
+                  </Button>
+                  <Button
+                    secondary
                     disabled={!email || busy}
                     onPress={() =>
                       void run(async () => {
                         const { error } =
-                          await supabase!.auth.resetPasswordForEmail(email);
+                          await supabase!.auth.resetPasswordForEmail(
+                            email.trim(),
+                            {
+                              redirectTo: authenticationRedirect(),
+                            },
+                          );
                         if (error) throw error;
-                      }, "Password reset email requested. Use your configured Supabase recovery page.")
+                      }, "Check your email. Open the reset link, then set your new password here.")
                     }
                   >
                     Request password reset

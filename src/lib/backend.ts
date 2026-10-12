@@ -3,8 +3,15 @@ import { createClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
+import * as Linking from "expo-linking";
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+export function authenticationRedirect() {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    return new URL("/profile", window.location.origin).toString();
+  }
+  return Linking.createURL("profile", { scheme: "homiesos" });
+}
 const authStorage =
   Platform.OS === "web"
     ? AsyncStorage
