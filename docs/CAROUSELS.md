@@ -1,9 +1,11 @@
 # Photo carousels
 
-Status: implemented and locally verified; the new `carousel` Edge Function is
-**not deployed**. The feature remains on a review branch until server deployment
-is approved and enabled. The confirmation/resend/password-reset fix is published
-separately on main; Vercel reports its deployment succeeded.
+Status, 13 October 2026: the user approved the feature and deployed the lowercase
+`carousel` Edge Function. Live missing/invalid session checks return the expected
+401 responses, and browser preflight returns 204 with the required CORS headers.
+The frontend is released through the app's main branch. A real signed-in photo
+request remains unverified; no production photos or provider calls were used for
+these checks. The confirmation/resend/password-reset fix was published separately.
 
 ## What you will do
 
@@ -55,7 +57,8 @@ bindings, `OPENAI_API_KEY` and `reserve_ai_request`. It does not replace assista
 documents or account functions. Optional `CAROUSEL_MODEL` defaults to the project's
 existing `gpt-4.1-mini` model and must be in `AI_ALLOWED_MODELS`.
 
-After explicit user approval, deploy only `carousel`. For dashboard deployment,
+The current project already deployed `carousel` after explicit user approval;
+do not deploy it again or rerun migrations just to use the app. For future dashboard deployment,
 copy the whole generated [dashboard file](../review/carousel-dashboard.ts), name
 the URL slug **carousel** (lowercase), and disable gateway Verify JWT. The handler
 independently verifies every bearer token with Supabase Auth before reading the

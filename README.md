@@ -6,8 +6,10 @@ The latest email-link fix is published: signup, confirmation resend and recovery
 use the current website's account page. Set Supabase's Site URL and redirect
 allowlist to the deployed website, then request a fresh confirmation email.
 See [photo carousel setup and deployment review](docs/CAROUSELS.md) for the new
-Gym/Work photo preparation feature. Its fourth server function, `carousel`,
-awaits explicit deployment approval; it is not enabled in production yet.
+Gym/Work photo preparation feature. Its fourth server function, `carousel`, was
+deployed with user approval on 13 October 2026. Live login rejection and browser
+preflight checks pass. A signed-in photo preparation still needs testing with
+the user's account.
 
 ## Try the app
 
@@ -28,7 +30,7 @@ Local records persist only on the current device/browser. Local mode is not secu
 - Persistent conversations, local English/Indonesian task commands and recorded priority summaries. Configured OpenAI Responses chat can propose validated create-task, reschedule-task and save-caption actions.
 - Editable Gainsip product/customer/channel profile, campaign hypotheses/status/results, review calendar tasks and manual sales/inquiry/revenue records.
 - Separate content drafts for the three requested account roles, manual caption editing, pipeline stages, content calendar tasks and manual view counts. Configured AI caption generation is implemented server-side.
-- Reviewed photo carousel preparation: choose and order photos, generate per-slide text and account captions, edit the result, export PNG slides plus captions as a ZIP. Requires the new authenticated `carousel` server function to be approved and deployed. Photos are not persisted in cloud records.
+- Photo carousel preparation: choose and order photos, generate per-slide text and account captions, edit the result, export PNG slides plus captions as a ZIP. The authenticated `carousel` server function is deployed. Photos are not persisted in cloud records.
 - Local TXT imports and source-named keyword excerpts; private cloud PDF/DOCX/TXT/XLSX/image storage when configured. Explicitly authorized PDF/DOCX/TXT indexing and citation-bearing engineering answers use OpenAI File Search.
 - IDX/US watchlists and manual holding records; card inventory with explicit variants, conditions, grading and user-entered price provenance/history. Quotes and collection market values are unavailable without providers.
 - Account-scoped persistence and owner-only cloud synchronization, JSON export and explicit deletion controls.

@@ -1,5 +1,18 @@
 # Validation — 9 October 2026
 
+## Carousel release — 13 October 2026
+
+The user approved publication and deployed the prepared lowercase `carousel`
+function. Live non-destructive checks return 401 `Authentication required` for
+a missing login, 401 `Invalid or expired session` for an invalid bearer, and 204
+for browser preflight with the expected origin/method/header permissions. These
+requests neither sent photos to OpenAI nor wrote application records.
+
+The tested carousel frontend is released through main after these checks. Live
+signed-in photo generation and the user's email flow remain unverified because
+Codex does not have the user's login. The tests and native bundle validation below
+still apply to the unchanged application code. No new migrations were applied.
+
 ## Photo and login update — 12 October 2026
 
 The browser app is published at https://dasvidaniya.vercel.app. The confirmation,
