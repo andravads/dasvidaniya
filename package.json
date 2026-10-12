@@ -51,7 +51,7 @@
     "test": "vitest run",
     "build:web": "expo export --platform web",
     "test:e2e": "playwright test",
-    "check:server": "deno check --frozen-lockfile --config supabase/functions/deno.json supabase/functions/assistant/index.ts supabase/functions/documents/index.ts supabase/functions/account/index.ts",
+    "check:server": "node scripts/prepare-carousel-dashboard.mjs --check && deno check --frozen-lockfile --config supabase/functions/deno.json supabase/functions/assistant/index.ts supabase/functions/documents/index.ts supabase/functions/account/index.ts supabase/functions/carousel/index.ts review/carousel-dashboard.ts",
     "serve:web": "node scripts/serve.mjs"
   },
   "private": true,
