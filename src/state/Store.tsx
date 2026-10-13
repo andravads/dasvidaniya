@@ -501,6 +501,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       throw new Error(
         "Sign in and configure OpenAI to generate a caption. You can save your own draft below.",
       );
+    const g = generation.current;
     const response = await invoke("assistant", {
       mode: "caption",
       text: topic,
@@ -510,6 +511,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       timezone: prefs.timezone,
       model: prefs.model,
     });
+    if (g !== generation.current) return;
     put("draft", {
       title: topic,
       text: response.text,

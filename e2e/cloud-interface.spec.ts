@@ -271,6 +271,83 @@ test("a sign-in failure is clearly shown and account settings remain usable", as
   );
 });
 
+test("a delayed account caption cannot enter the local sandbox after logout", async ({
+  page,
+}) => {
+  await mockCloud(page);
+  const projectURL = process.env.EXPO_PUBLIC_SUPABASE_URL!.replace(/\/$/, "");
+  let release!: () => void;
+  let received!: () => void;
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const requestReceived = new Promise<void>((resolve) => {
+    received = resolve;
+  });
+  await page.route(projectURL + "/functions/v1/assistant", async (route) => {
+    received();
+    await pending;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ text: "Delayed private account caption" }),
+    });
+  });
+  await page.goto("/profile");
+  await page
+    .getByLabel("Email", { exact: true })
+    .fill("browser-test@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("test-password-only");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Sign out", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Workspace", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Content Studio", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Write a draft manually", exact: true })
+    .click();
+  await page
+    .getByLabel("Content topic", { exact: true })
+    .fill("Private account topic");
+  await page
+    .getByRole("button", { name: "Generate AI caption", exact: true })
+    .click();
+  await requestReceived;
+  await page.getByRole("link", { name: "Profile", exact: true }).click();
+  await page.getByRole("button", { name: "Sign out", exact: true }).click();
+  await expect(page.getByLabel("Email", { exact: true })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem("homies:v1:local")))
+    .not.toBeNull();
+  const responseReceived = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === "/functions/v1/assistant",
+  );
+  release();
+  await (await responseReceived).finished();
+  // Let the completed response reach the app before checking an absent record.
+  await page.waitForTimeout(500);
+  expect(
+    await page.evaluate(() =>
+      JSON.parse(localStorage.getItem("homies:v1:local") ?? "[]").some(
+        (record: any) =>
+          record.kind === "draft" &&
+          record.payload.text === "Delayed private account caption",
+      ),
+    ),
+  ).toBe(false);
+  await page.getByRole("link", { name: "Workspace", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Content Studio", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("Caption: Private account topic", { exact: true }),
+  ).toHaveCount(0);
+});
+
 test("confirmation, resend and recovery links return to the app instead of localhost defaults", async ({
   page,
 }) => {
