@@ -96,7 +96,7 @@ See [the existing Homies Expo project and phone setup](docs/EXPO-SETUP.md) for A
 
 - Web: `npm run build:web`, deploy `dist` to a static host. `vercel.json` configures SPA fallback. Set public Supabase build variables on your host; set server keys only in Supabase. Use HTTPS.
 - Android/iOS: create an Expo account, run `npx eas-cli build:configure`, fill in your own application identifiers/project ID and `npx eas-cli build --profile preview --platform android` or production builds for each platform. Native development clients can be built with `npx eas-cli build --profile development` after installing `expo-dev-client` via `npx expo install expo-dev-client`.
-- iOS distribution needs Apple Developer membership; Android publishing needs Play Console membership. EAS builds and store submission have not been run. Before publishing, supply a privacy policy and test email verification, password recovery, permission denial, account deletion, synchronization and notifications on physical devices.
+- iOS distribution needs Apple Developer membership; Android publishing needs Play Console membership. The Android preview APK build has completed; see [phone setup](docs/EXPO-SETUP.md) for its installation link and download-verification limits. iOS builds and store submissions have not been run. Before publishing, supply a privacy policy and test email verification, password recovery, permission denial, account deletion, synchronization and notifications on physical devices.
 - Never use the default template icon for a public release; branding assets are pending.
 
 ## Not yet implemented / release limits

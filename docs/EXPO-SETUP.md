@@ -1,81 +1,84 @@
 # Homies OS phone setup — 13 October 2026
 
-Use the existing Homies OS application and Expo project `@andravads/ads-assistant`, project ID `64949f00-07a2-4515-a279-64d90ff38443`. No starter app was created. The current source was reconciled with PR #2 before mobile changes, preserving its carousel, auth, accessibility and security improvements.
+The existing app remains linked to `@andravads/ads-assistant`, EAS project `64949f00-07a2-4515-a279-64d90ff38443`. The new environment successfully uploaded the Android source. PR #2 stays a draft until physical-phone testing is complete.
 
-## Ready in source
+## Android: install the completed preview
 
-- Expo SDK 57 compatible patch versions; SDK-compatible expo-dev-client and expo-system-ui installed.
-- Android preview uses an APK with its own bundled app code, internal distribution and the medium resource class. It does not require a running Metro server. Development profile remains available for developer testing.
-- EAS preview has only the two public Supabase settings, copied from the already saved environment. Server keys and EXPO_TOKEN are not app configuration.
-- Android signing keystore was created and stored on Expo's credential service. No signing value was printed or committed.
-- Native email confirmation/recovery/sign-in callbacks accept the current app callback, including Expo Go and PKCE. Sessions refresh while the app is active; account switching preserves device/account separation. Delayed startup events cannot overwrite a later sign-in or logout, and installed development/preview apps use the stable homiesos callback even when connected to Metro.
-- Keyboard handling, long labels, native TXT import and foreground local task reminders improved. Existing mobile navigation, photo carousel editing/export and captions preserved.
+- **Download APK:** https://expo.dev/artifacts/eas/TmrTv8qoU3E4sX4gWND5Fz9vxFQTfkTVhyH-AYkpXyc.apk
+- **Expo build page:** https://expo.dev/accounts/andravads/projects/ads-assistant/builds/a127c7d4-9084-4e14-b0e5-be572ab243aa
+- Build `a127c7d4-9084-4e14-b0e5-be572ab243aa`: FINISHED; internal Android preview, version `0.1.0`, package `com.homies.os`.
+- Expo's upload log reports a 102 MB release APK. The hosted artifact expires on 27 October 2026; download it before then.
+- Expo completed the release build and uploaded `app-release.apk` using the existing remote Android keystore. The installation URL resolves from `expo.dev` to `api.expo.dev` and then `wf-artifacts.eascdn.net`. This environment rejects that final CDN host with HTTP 403, so the APK binary, manifest and signature were not independently inspected and no local APK copy was saved. Physical installation/runtime are also pending.
+- This preview includes its own app code. It does not need Expo Go or a running development server.
+- Free allowance before the build: 0/30 total credits and 0/15 Android credits used. After completion: 1/30 total and 1/15 Android credits used, leaving 29 total and 14 Android credits. Additional usage cost remains $0. No paid action or upgrade was taken.
 
-## Current installation status
+On your Android phone:
 
-Build permission is now available. The Expo API currently identifies the robot's role as ADMIN (broader than the Developer role required for builds). Before the first build attempt the account was on Free, with 0 of 30 included build credits used and no overage. No paid action was authorized or taken.
+1. Open the APK download link in your browser and download it.
+2. Open the downloaded file. If asked, allow that browser or Files app to **install unknown apps**, then tap **Install**. You can turn that permission off afterward.
+3. Open **Homies OS**. Start with **Local sandbox** and add a test task. Sign in under **Profile** when you want your account workspace.
 
-The first Android preview attempt stopped before it could queue: the cloud environment proxy rejected the source upload to `storage.googleapis.com` with HTTP 403. Native credentials and public app settings succeeded. An installable APK does not exist from that attempt, so there is no installation link yet.
+## Finish APK binary verification in Codex
 
-In Codex environment settings, retain existing domains and add `storage.googleapis.com` (EAS source upload), `expo.dev` (installation-link checks), `exp.host` (Expo config schema) and `reactnative.directory` (compatibility metadata). Save the domain changes, finish the environment setup and select Republish. Start a NEW cloud task using that updated published environment. Existing tasks retain their original environment state, so continuing or restarting this old task does not apply the new allowlist. Official guidance: https://help.openai.com/en/articles/20001545-using-codex-cloud and https://learn.chatgpt.com/docs/environments/cloud-environments . Keep the supported proxy and TLS checks.
+The completed APK does not need to be rebuilt. To allow this environment to download and independently verify the existing artifact, add **`wf-artifacts.eascdn.net`** in Codex environment settings while retaining the existing hosts. Save, finish environment setup, select **Republish**, and use the newly published environment in a new cloud task. Existing tasks may retain their original policy. Reuse build `a127c7d4-9084-4e14-b0e5-be572ab243aa`; the follow-up should download and inspect it, not create another build. Keep the supported proxy and TLS verification.
 
-## iPhone testing
+## iPhone: signed internal preview
 
-The current Apple App Store Expo Go stops at SDK 54. Homies uses SDK 57, so it cannot run in that iPhone app. Official Expo version metadata includes an SDK 57 client for Android and an iOS simulator archive; those do not establish an installable App Store client for a physical iPhone. Reference: https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/ . A tunnel or hosted JavaScript update does not remove this native version requirement.
+Current official Expo guidance says the Apple App Store version of Expo Go stops at SDK 54. This app uses SDK 57. A tunnel cannot solve the native compatibility requirement. The SDK 57 iOS simulator archive is also not installable on a physical iPhone.
 
-Use a signed internal Homies OS iOS preview build. It requires an existing Apple Developer Program membership and registering the iPhone for internal distribution. Membership itself is paid; no purchase is authorized. Credentials must be entered through Expo/Apple's secure signing flow, never in chat or GitHub. An internal preview does not submit to the App Store. A simulator build cannot be installed on an iPhone. No iOS build or store submission was started.
+Use the existing app's **signed internal iOS preview**, which bundles its own code. It requires an active Apple Developer Program membership, an authorized Apple signing flow, and the iPhone's registration in the ad hoc provisioning profile. Existing Expo metadata currently shows no saved Apple team, iOS build credentials or registered devices for this account/project. It does not establish whether you personally have Apple membership.
 
-Android has an SDK 57-compatible Expo Go download, and the app's native modules are included in that client. An Android preview APK is the simpler standalone route and tests native callback ownership/reminders. Expo's supported tunnel command rejected the robot identity with `Cannot use ngrok with a robot user`. No tunnel was established or externally verified; localhost is not a phone link. A personal Expo token would address the robot restriction, but would not make this SDK run in iPhone App Store Expo Go.
+**Your required next step:** confirm whether you already have active Apple Developer Program membership. No membership purchase is authorized. After confirmation, device registration and signing must be completed through Expo/Apple's secure flows: open Expo's registration link on the iPhone, authorize signing securely, then build this same `preview` profile for iOS. Open the completed build page on that registered iPhone to install it. Enter passwords, two-factor codes and signing material only in the official secure flow, never in chat or GitHub.
 
-## Email links: one dashboard change
+No iOS build or App Store/TestFlight submission has been made. Current official references:
 
-Open https://supabase.com/dashboard/project/jnuaexajxrudalbcxcii/auth/url-configuration . Under Authentication → URL Configuration → Redirect URLs, add:
+- https://docs.expo.dev/troubleshooting/expo-go-version-mismatch/
+- https://docs.expo.dev/build/internal-distribution/
+- https://docs.expo.dev/tutorial/eas/internal-distribution-builds/
 
-- `homiesos://profile`
-- `https://dasvidaniya.vercel.app/profile`
+Their current official source was verified through the Expo GitHub repositories; the version API at https://exp.host/--/api/v2/versions also confirms the SDK 57 Android client and iOS simulator assets. The newer `eas go` route submits to App Store Connect/TestFlight, so it is outside this task's scope.
 
-Keep the existing website redirects and Site URL. Press Save. Use a newly requested confirmation/recovery email; existing emails retain their original destination. For Expo Go email tests, add the exact current `exp://<reachable-tunnel>/--/profile` address once a working tunnel exists. Do not add a broad wildcard just to make testing easier. Custom email templates must retain Supabase's `{{ .ConfirmationURL }}`.
+## Email links: verify the two redirect URLs
 
-## When the Android install link is available
+Public Supabase settings do not expose the redirect allowlist, so this requires your dashboard access.
 
-1. Open the actual installation link on your Android phone and download the APK.
-2. If Android asks, allow this browser to install unknown apps, then tap Install. You can turn that permission off afterward.
-3. Open Homies OS. Start with local tasks/habits, then sign in to use your account workspace. Local sandbox records remain separate.
-4. Confirm a new email link, close/reopen the app, check the session, and sign out. Create a short test task with a reminder, grant notification permission, and check it both while the app is open and while it is closed.
+1. Open https://supabase.com/dashboard/project/jnuaexajxrudalbcxcii/auth/url-configuration .
+2. Under **Authentication → URL Configuration → Redirect URLs**, add these exact entries if missing:
+   - `homiesos://profile`
+   - `https://dasvidaniya.vercel.app/profile`
+3. Keep the existing website redirects and Site URL; leave email confirmation enabled. Press **Save**.
+4. Request a fresh confirmation or recovery email from the app. Existing emails retain their original destination. Custom email templates must preserve Supabase's `{{ .ConfirmationURL }}`.
 
-## Photo and caption test
+## Physical-phone checks
 
-Open Workspace → Content Studio. The native picker opens Files. On iPhone, use Photos → select two screenshots → Share → Save to Files; screenshots avoid HEIC compatibility problems. Choose these PNGs, order them, and use Prepare with AI only after signing in. Preparing sends photo previews to the configured provider and uses the existing AI request budget; no provider call was made by this setup work. Review/edit the slides and captions, then share/download the ZIP before leaving the page.
+1. Visit Home, Calendar, Chat, Workspace and Profile. Check small-screen navigation, keyboard visibility and long labels.
+2. Create, edit, complete and reschedule a task. Close and reopen the app to check persistence.
+3. Open newly requested confirmation/sign-in/recovery links with the app closed and with it already open. Check the password-reset flow.
+4. Sign in, close/reopen the app and check session persistence. Reopen after a longer idle period to exercise token refresh. Sign out and confirm account records disappear. If you use a second account, confirm its workspace is separate; local sandbox records must also stay separate.
+5. Use **Sync now** on the phone and existing website and compare a test task. Browser cloud tests use mocks; this is still a real-account check.
+6. Test denied and granted notification permission. Schedule a short test reminder and check it with the app open and closed. Foreground/background delivery has not been verified on a physical phone.
+7. Test photo selection, slide editing, captions, PNG/ZIP export and opening the shared ZIP in another app. AI generation sends previews to the configured provider and may use paid provider services; no billable provider call was made during this work.
 
-JPEG, PNG and WebP are supported. HEIC must be converted to JPEG. Photos/slide images stay in page memory; saved drafts preserve text/captions. Camera capture, card recognition and automatic social publishing are not implemented. Native ZIP sharing and notification delivery still require physical-phone testing.
+## Photos and captions
 
-## Verification and boundaries
+JPEG, PNG and WebP selection, ordering, editing, captions and PNG/ZIP exports are preserved. Native selection uses **Files**, not a native photo-library picker. On iPhone, an easy test is **Photos → select two screenshots → Share → Save to Files**, then choose those PNGs in Homies. Convert HEIC photos to JPEG first.
 
-TypeScript passed. All 68 unit/database/provider/carousel/auth/notification tests passed, including focused notification revalidation. Native Android/iOS Hermes exports and both native prebuilds succeeded. The web production export succeeded locally. Existing browser workflows passed across the broad and focused reruns (36 workflows plus the two corrected confirmation/recovery checks). Browser cloud tests mock authenticated responses; they do not establish a real user's signed-in backend success.
+Photos/slide images remain in page memory; saved drafts preserve text and captions. Export before leaving the page. Native ZIP sharing and image rendering still need phone testing. Automatic social publishing is not implemented.
 
-Supabase's real auth settings allow email signup and require confirmation. Anonymous requests to account records and carousel return 401. This is an authentication boundary check, not a complete production security audit.
+## Verification completed
 
-Expo install compatibility passes. Expo Doctor initially passed 19/21 checks; its schema and React Native Directory requests were unavailable under the restricted policy. These checks are not falsely marked passed.
+- Exact PR head `5ef25ee2f898544a7e2cff636abb4a9ddbf974a3` was restored and all 85 tracked file hashes verified before the scoped fix. The built app includes the caption guard saved in commit `0cb08c771c50051a1d8ecdfc9ad78aad8103ec67`.
+- Fixed a confirmed account-isolation race: a delayed signed-in AI caption could enter the local sandbox after logout. A generation guard now discards the stale response, with desktop and phone browser regression coverage.
+- TypeScript passes; all 68 unit/database/provider/carousel/auth/notification tests pass.
+- All 40 browser workflows pass at desktop and phone dimensions, including navigation, tasks, email callbacks, logout/account separation and photo/caption exports. Authenticated backend responses are mocked; these are not physical-iPhone Safari checks.
+- Expo dependency compatibility passes and Expo Doctor passes 21/21 checks using the inherited proxy with Node's environment-proxy support.
+- Final Android and iOS Hermes exports pass. The Android EAS build completed its native prebuild, bundling, compilation and signing.
+- Live read-only Supabase checks confirm email signup with required confirmation, denied anonymous reads of five app tables and the tasks view, and 401 rejection for missing/invalid carousel sessions. These do not prove authenticated two-account isolation or email delivery.
 
-No database migration, Edge Function deployment, website deployment, or store submission was performed. Branch-specific Vercel Git deployments are disabled for `setup/expo-project` so saving PR #2 does not publish a website. Other branches retain their existing deployment behavior.
+No database migration, Edge Function deployment, website deployment, store submission or real AI/provider call was made. The PR branch's `git.deploymentEnabled.setup/expo-project=false` Vercel setting is preserved. Signing values and server keys were not committed or placed in app configuration; only the two public Supabase settings are saved in EAS preview.
 
-## Maintainer commands after access is available
+## Maintainer continuation
 
-```sh
-npm ci
-npx expo install --check
-npx expo-doctor
-npx eas-cli project:info
-npx eas-cli build --profile preview --platform android
-npx expo start --go --tunnel
-```
+Use this existing checkout/project; do not create another app. Device registration and initial iOS signing require an interactive, secure EAS/Apple session. Once access is authorized, the applicable commands are `eas device:create`, `eas build --platform ios --profile preview`, and, for later added devices, `eas build:resign` or a new preview build. Recheck the remaining free allowance before any new build and ask before a paid action.
 
-On this managed workspace the home directory is read-only. Use workspace npm/Expo/DevTools caches and network-enabled command access while preserving the inherited proxy and CA trust. The snapshot has no writable Git history; EAS_NO_VCS=1 with EAS_PROJECT_ROOT=/workspace/dasvidaniya was used for its archive/build attempt. GitHub updates preserve the real PR parent/tree rather than replacing it with that empty local history.
-
-## Continue in the newly published environment
-
-All mobile code is saved on PR #2, branch `setup/expo-project`. Choose the updated environment for a new cloud task, then ask:
-
-> Continue Homies OS from https://github.com/andravads/dasvidaniya/pull/2 using the existing @andravads/ads-assistant project, ID 64949f00-07a2-4515-a279-64d90ff38443. Read docs/EXPO-SETUP.md and use the PR's latest source rather than the older prepared snapshot. Verify the active network policy includes storage.googleapis.com, expo.dev, exp.host and reactnative.directory, authenticate with the securely saved EXPO_TOKEN, verify the preview Supabase variables and Android signing credentials, recheck the free allowance, then build and monitor the Android preview APK and provide its actual installation link. Preserve the existing app and features. Ask before any paid action. Do not create another app, deploy the website/database/Edge Functions, or submit to stores. For SDK 57 on a physical iPhone, confirm existing Apple Developer membership and use a signed internal preview; App Store Expo Go is incompatible. Do not request secrets in chat.
-
-Latest old-task retry on 13 October still stopped during GCS upload with proxy CONNECT 403. No build was queued and no APK was produced. The token has build-capable permissions, EAS preview public configuration and Android keystore are already stored on Expo, and Free usage remains 0/30. These remote settings can be reused by the new task without creating a second project or signing key.
+The environment policy is enforced and includes the requested Expo/npm/Google Storage/Supabase hosts. Keep the inherited HTTP(S) proxy and TLS verification. In this read-only-home workspace, use `npm_config_cache=/workspace/.npm-cache`, `EXPO_NO_TELEMETRY=1` and the SDK-supported shell cache override `__UNSAFE_EXPO_HOME_DIRECTORY=/workspace/work/expo`; `NODE_USE_ENV_PROXY=1` enables Node's supported proxy handling. The source archive was uploaded using `EAS_NO_VCS=1` and `EAS_PROJECT_ROOT=/workspace/dasvidaniya`; GitHub changes retain the real PR parent/tree. Scratch verification files are outside the app root.
