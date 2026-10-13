@@ -38,6 +38,10 @@ No iOS build or App Store/TestFlight submission has been made. Current official 
 
 Their current official source was verified through the Expo GitHub repositories; the version API at https://exp.host/--/api/v2/versions also confirms the SDK 57 Android client and iOS simulator assets. The newer `eas go` route submits to App Store Connect/TestFlight, so it is outside this task's scope.
 
+## Sign-in help
+
+See [account sign-in and OpenAI credit troubleshooting](AUTH-HELP.md). The user confirmed Android password sign-in after setting a new password in the signed-in website session, and added the exact native redirect. Source version 0.1.1 improves email-only login, existing-password validation and authentication error messages; its updated APK is being built.
+
 ## Email links: verify the two redirect URLs
 
 Public Supabase settings do not expose the redirect allowlist, so this requires your dashboard access.
@@ -75,7 +79,7 @@ Photos/slide images remain in page memory; saved drafts preserve text and captio
 - Final Android and iOS Hermes exports pass. The Android EAS build completed its native prebuild, bundling, compilation and signing.
 - Live read-only Supabase checks confirm email signup with required confirmation, denied anonymous reads of five app tables and the tasks view, and 401 rejection for missing/invalid carousel sessions. These do not prove authenticated two-account isolation or email delivery.
 
-No database migration, Edge Function deployment, website deployment, store submission or real AI/provider call was made. The PR branch's `git.deploymentEnabled.setup/expo-project=false` Vercel setting is preserved. Signing values and server keys were not committed or placed in app configuration; only the two public Supabase settings are saved in EAS preview.
+No database migration, Edge Function deployment, website deployment, store submission or real AI/provider call was made by the assistant. The PR branch's `git.deploymentEnabled.setup/expo-project=false` Vercel setting is preserved. Signing values and server keys were not committed or placed in app configuration; only the two public Supabase settings are saved in EAS preview.
 
 ## Maintainer continuation
 
