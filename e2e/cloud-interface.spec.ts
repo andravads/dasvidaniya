@@ -318,6 +318,37 @@ test("email-link sign-in needs no password and preserves its redirect", async ({
   );
 });
 
+test("website update guidance preserves unfinished work and offers no native restart", async ({
+  page,
+}) => {
+  const updateRequests: string[] = [];
+  await page.route("https://u.expo.dev/**", async (route) => {
+    updateRequests.push(route.request().url());
+    await route.abort();
+  });
+  await page.goto("/profile");
+  await page
+    .getByLabel("Email", { exact: true })
+    .fill("unfinished@example.com");
+  await expect(page.getByText("App updates", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(
+      "The website updates automatically. Refresh this page after saving any unfinished work.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Check for updates", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Restart to update", exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel("Email", { exact: true })).toHaveValue(
+    "unfinished@example.com",
+  );
+  expect(updateRequests).toEqual([]);
+});
+
 test("existing six- and seven-character passwords can sign in without weakening new-password rules", async ({
   page,
 }) => {

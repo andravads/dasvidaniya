@@ -22,6 +22,7 @@ import { supabase, invoke, authenticationRedirect } from "../lib/backend";
 import { formatAuthError } from "../lib/authErrors";
 import { requestNotifications } from "../lib/notifications";
 import { exportJson } from "../lib/export";
+import { AppUpdates } from "../components/AppUpdates";
 export default function Profile() {
   const { prefs, setPrefs, records, session, status, sync, resetLocal } =
       useStore(),
@@ -305,6 +306,7 @@ export default function Profile() {
           </Button>
         </Card>
       </View>
+      <AppUpdates />
       <Disclosure title="Home shortcuts">
         <View style={styles.grid}>
           {domains.map((d) => (

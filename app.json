@@ -3,7 +3,16 @@
     "name": "Homies OS",
     "slug": "ads-assistant",
     "scheme": "homiesos",
-    "version": "0.1.1",
+    "version": "0.1.2",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "enabled": true,
+      "url": "https://u.expo.dev/64949f00-07a2-4515-a279-64d90ff38443",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
     "extra": {
       "eas": {
         "projectId": "64949f00-07a2-4515-a279-64d90ff38443"
@@ -30,7 +39,7 @@
     },
     "android": {
       "package": "com.homies.os",
-      "versionCode": 2
+      "versionCode": 3
     },
     "web": {
       "bundler": "metro",
