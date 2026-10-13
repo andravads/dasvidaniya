@@ -17,7 +17,7 @@ Build permission is now available. The Expo API currently identifies the robot's
 
 The first Android preview attempt stopped before it could queue: the cloud environment proxy rejected the source upload to `storage.googleapis.com` with HTTP 403. Native credentials and public app settings succeeded. An installable APK does not exist from that attempt, so there is no installation link yet.
 
-In Codex environment settings, retain existing domains and add `storage.googleapis.com` (EAS source upload), `expo.dev` (installation-link checks), `exp.host` (Expo config schema) and `reactnative.directory` (compatibility metadata). Apply the configuration. This changes the supported allowlist; it does not disable the proxy or TLS checks.
+In Codex environment settings, retain existing domains and add `storage.googleapis.com` (EAS source upload), `expo.dev` (installation-link checks), `exp.host` (Expo config schema) and `reactnative.directory` (compatibility metadata). Save the domain changes, finish the environment setup and select Republish. Start a NEW cloud task using that updated published environment. Existing tasks retain their original environment state, so continuing or restarting this old task does not apply the new allowlist. Official guidance: https://help.openai.com/en/articles/20001545-using-codex-cloud and https://learn.chatgpt.com/docs/environments/cloud-environments . Keep the supported proxy and TLS checks.
 
 ## iPhone testing
 
@@ -71,3 +71,11 @@ npx expo start --go --tunnel
 ```
 
 On this managed workspace the home directory is read-only. Use workspace npm/Expo/DevTools caches and network-enabled command access while preserving the inherited proxy and CA trust. The snapshot has no writable Git history; EAS_NO_VCS=1 with EAS_PROJECT_ROOT=/workspace/dasvidaniya was used for its archive/build attempt. GitHub updates preserve the real PR parent/tree rather than replacing it with that empty local history.
+
+## Continue in the newly published environment
+
+All mobile code is saved on PR #2, branch `setup/expo-project`. Choose the updated environment for a new cloud task, then ask:
+
+> Continue Homies OS from https://github.com/andravads/dasvidaniya/pull/2 using the existing @andravads/ads-assistant project, ID 64949f00-07a2-4515-a279-64d90ff38443. Read docs/EXPO-SETUP.md and use the PR's latest source rather than the older prepared snapshot. Verify the active network policy includes storage.googleapis.com, expo.dev, exp.host and reactnative.directory, authenticate with the securely saved EXPO_TOKEN, verify the preview Supabase variables and Android signing credentials, recheck the free allowance, then build and monitor the Android preview APK and provide its actual installation link. Preserve the existing app and features. Ask before any paid action. Do not create another app, deploy the website/database/Edge Functions, or submit to stores. For SDK 57 on a physical iPhone, confirm existing Apple Developer membership and use a signed internal preview; App Store Expo Go is incompatible. Do not request secrets in chat.
+
+Latest old-task retry on 13 October still stopped during GCS upload with proxy CONNECT 403. No build was queued and no APK was produced. The token has build-capable permissions, EAS preview public configuration and Android keystore are already stored on Expo, and Free usage remains 0/30. These remote settings can be reused by the new task without creating a second project or signing key.
