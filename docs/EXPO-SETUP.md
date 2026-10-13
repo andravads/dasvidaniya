@@ -2,25 +2,31 @@
 
 The existing app remains linked to `@andravads/ads-assistant`, EAS project `64949f00-07a2-4515-a279-64d90ff38443`. The new environment successfully uploaded the Android source. PR #2 stays a draft until physical-phone testing is complete.
 
-## Android: install the completed preview
+## Android: update-enabled preview
 
-- **Download APK:** https://expo.dev/artifacts/eas/TmrTv8qoU3E4sX4gWND5Fz9vxFQTfkTVhyH-AYkpXyc.apk
-- **Expo build page:** https://expo.dev/accounts/andravads/projects/ads-assistant/builds/a127c7d4-9084-4e14-b0e5-be572ab243aa
-- Build `a127c7d4-9084-4e14-b0e5-be572ab243aa`: FINISHED; internal Android preview, version `0.1.0`, package `com.homies.os`.
-- Expo's upload log reports a 102 MB release APK. The hosted artifact expires on 27 October 2026; download it before then.
-- Expo completed the release build and uploaded `app-release.apk` using the existing remote Android keystore. The installation URL resolves from `expo.dev` to `api.expo.dev` and then `wf-artifacts.eascdn.net`. This environment rejects that final CDN host with HTTP 403, so the APK binary, manifest and signature were not independently inspected and no local APK copy was saved. Physical installation/runtime are also pending.
-- This preview includes its own app code. It does not need Expo Go or a running development server.
-- Free allowance before the build: 0/30 total credits and 0/15 Android credits used. After completion: 1/30 total and 1/15 Android credits used, leaving 29 total and 14 Android credits. Additional usage cost remains $0. No paid action or upgrade was taken.
+- **Latest Expo build page:** https://expo.dev/accounts/andravads/projects/ads-assistant/builds/99d57427-f844-49a1-a768-237777185774
+- Build `99d57427-f844-49a1-a768-237777185774`: queued; internal Android preview, version `0.1.2`, version code `3`, package `com.homies.os`. Its new APK link will appear after successful completion.
+- The existing remote Android keystore is reused. The APK download resolves through `wf-artifacts.eascdn.net`, which this environment currently excludes. Binary/signature and physical installation/runtime checks remain pending.
+- This preview includes its own app code and the update engine. It does not need Expo Go or a running development server.
+- Before this build, Free usage was 2/30 total and 2/15 Android included credits, with $0 additional cost. No paid action or upgrade was taken.
+
+The previous authentication-only Android 0.1.1 build completed: https://expo.dev/artifacts/eas/H1ynZTuH3NlC4McAvgsY3O4uF40Z-wwIpa5DVUtmduo.apk . It lacks the update engine. Use the new 0.1.2 APK once it is finished to gain in-app updates.
 
 On your Android phone:
 
-1. Open the APK download link in your browser and download it.
-2. Open the downloaded file. If asked, allow that browser or Files app to **install unknown apps**, then tap **Install**. You can turn that permission off afterward.
+1. After the 0.1.2 build finishes, open its APK download link in your browser and download it.
+2. Open the downloaded file and install it over the existing Homies OS app; do not uninstall first. If asked, allow that browser or Files app to **install unknown apps**, then tap **Install**. You can turn that permission off afterward.
 3. Open **Homies OS**. Start with **Local sandbox** and add a test task. Sign in under **Profile** when you want your account workspace.
+
+## Updates after this installation
+
+Version 0.1.2 adds **Profile → App updates → Check for updates**, download status and an explicit **Restart to update** button. It also checks automatically on a cold start, downloads in the background and applies compatible updates on the next cold start. Save unfinished work before restarting. Native/SDK changes still require a new APK.
+
+Source is saved in commit `b6d961e3000f04c6d5b3bdbe13941c1999ebc3e6`. Preview channel and branch are linked. Android runtime `c33dfa84e1be9348a443e87d0c2023d2a55b3318` matches the permitted local resolver. The first compatible update was exported, but publication failed with HTTP 403 at `update-assets-upload-production.storage.googleapis.com`; no update group was created. Add that exact upload host to the environment policy before retrying. See [app update instructions](APP-UPDATES.md).
 
 ## Finish APK binary verification in Codex
 
-The completed APK does not need to be rebuilt. To allow this environment to download and independently verify the existing artifact, add **`wf-artifacts.eascdn.net`** in Codex environment settings while retaining the existing hosts. Save, finish environment setup, select **Republish**, and use the newly published environment in a new cloud task. Existing tasks may retain their original policy. Reuse build `a127c7d4-9084-4e14-b0e5-be572ab243aa`; the follow-up should download and inspect it, not create another build. Keep the supported proxy and TLS verification.
+To allow this environment to publish app updates and inspect the completed APK, add **`update-assets-upload-production.storage.googleapis.com`**, **`u.expo.dev`** and **`wf-artifacts.eascdn.net`** in Codex environment settings while retaining the existing hosts. Save, finish environment setup and select **Republish**. If the current task retains its original policy, use the newly published environment in a new cloud task. Reuse build `99d57427-f844-49a1-a768-237777185774` after completion; do not rebuild merely to download it. Keep the supported proxy and TLS verification.
 
 ## iPhone: signed internal preview
 
@@ -40,7 +46,7 @@ Their current official source was verified through the Expo GitHub repositories;
 
 ## Sign-in help
 
-See [account sign-in and OpenAI credit troubleshooting](AUTH-HELP.md). The user confirmed Android password sign-in after setting a new password in the signed-in website session, and added the exact native redirect. Source version 0.1.1 improves email-only login, existing-password validation and authentication error messages; its updated APK is being built.
+See [account sign-in and OpenAI credit troubleshooting](AUTH-HELP.md). The user confirmed Android password sign-in after setting a new password in the signed-in website session, and added the exact native redirect. The 0.1.1 email-only login, existing-password validation and authentication error improvements are retained in 0.1.2. Install the latest APK over the existing Homies OS app with the same package and keystore. The website was not redeployed under the original restriction.
 
 ## Email links: verify the two redirect URLs
 
@@ -62,6 +68,7 @@ Public Supabase settings do not expose the redirect allowlist, so this requires 
 5. Use **Sync now** on the phone and existing website and compare a test task. Browser cloud tests use mocks; this is still a real-account check.
 6. Test denied and granted notification permission. Schedule a short test reminder and check it with the app open and closed. Foreground/background delivery has not been verified on a physical phone.
 7. Test photo selection, slide editing, captions, PNG/ZIP export and opening the shared ZIP in another app. AI generation sends previews to the configured provider and may use paid provider services; no billable provider call was made during this work.
+8. After a compatible update is published, use **Profile → App updates → Check for updates → Restart to update**. Confirm the app reopens, retains a saved test task and keeps the expected session. Downloading must not force a restart.
 
 ## Photos and captions
 
@@ -71,12 +78,12 @@ Photos/slide images remain in page memory; saved drafts preserve text and captio
 
 ## Verification completed
 
-- Exact PR head `5ef25ee2f898544a7e2cff636abb4a9ddbf974a3` was restored and all 85 tracked file hashes verified before the scoped fix. The built app includes the caption guard saved in commit `0cb08c771c50051a1d8ecdfc9ad78aad8103ec67`.
+- Exact PR head `5ef25ee2f898544a7e2cff636abb4a9ddbf974a3` was restored and all 85 tracked file hashes verified before the scoped fix. The built app includes the caption guard saved in commit `0cb08c771c50051a1d8ecdfc9ad78aad8103ec67` and the auth fixes saved in `3d3ae233de15a7bf18e1f280b17aa9d9fa41dc45`.
 - Fixed a confirmed account-isolation race: a delayed signed-in AI caption could enter the local sandbox after logout. A generation guard now discards the stale response, with desktop and phone browser regression coverage.
-- TypeScript passes; all 68 unit/database/provider/carousel/auth/notification tests pass.
-- All 40 browser workflows pass at desktop and phone dimensions, including navigation, tasks, email redirect destinations, logout/account separation and photo/caption exports. Authenticated backend responses are mocked; these are not physical-iPhone Safari checks.
+- TypeScript passes; all 98 unit/database/provider/carousel/auth/notification/update tests pass.
+- All 54 browser workflows pass at desktop and phone dimensions, including navigation, tasks, email redirect destinations, logout/account separation, photo/caption exports and safe web update guidance. Authenticated backend responses are mocked; these are not physical-iPhone Safari checks.
 - Expo dependency compatibility passes and Expo Doctor passes 21/21 checks using the inherited proxy with Node's environment-proxy support.
-- Final Android and iOS Hermes exports pass. The Android EAS build completed its native prebuild, bundling, compilation and signing.
+- Final 0.1.2 Android and iOS Hermes exports pass. Native configuration inspection enables updates on both platforms, with cold-start checks and zero launch wait. The previous 0.1.1 EAS build completed native compilation/signing; the update-enabled 0.1.2 build is queued.
 - Live read-only Supabase checks confirm email signup with required confirmation, denied anonymous reads of five app tables and the tasks view, and 401 rejection for missing/invalid carousel sessions. These do not prove authenticated two-account isolation or email delivery.
 
 No database migration, Edge Function deployment, website deployment, store submission or real AI/provider call was made by the assistant. The PR branch's `git.deploymentEnabled.setup/expo-project=false` Vercel setting is preserved. Signing values and server keys were not committed or placed in app configuration; only the two public Supabase settings are saved in EAS preview.

@@ -90,7 +90,7 @@ If the machine has a read-only home directory, run commands with `npm_config_cac
 
 ## Phone installation
 
-See [the existing Homies Expo project and phone setup](docs/EXPO-SETUP.md) for Android APK status, iPhone testing, and the exact email callback. Use the existing linked app rather than creating another project. See [sign-in and AI credit troubleshooting](docs/AUTH-HELP.md) if email links open the website, passwords are rejected or OpenAI reports missing quota.
+See [the existing Homies Expo project and phone setup](docs/EXPO-SETUP.md) for Android APK status, iPhone testing, and the exact email callback. Use the existing linked app rather than creating another project. Version 0.1.2 adds compatible in-app updates; see [app update instructions](docs/APP-UPDATES.md). See [sign-in and AI credit troubleshooting](docs/AUTH-HELP.md) if email links open the website, passwords are rejected or OpenAI reports missing quota.
 
 ## Deployment
 
