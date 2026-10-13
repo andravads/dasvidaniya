@@ -19,8 +19,10 @@ import {
 import { useItems, useStore } from "../state/Store";
 import { defaults, domains, domainLabels } from "../lib/domain";
 import { supabase, invoke, authenticationRedirect } from "../lib/backend";
+import { formatAuthError } from "../lib/authErrors";
 import { requestNotifications } from "../lib/notifications";
 import { exportJson } from "../lib/export";
+import { AppUpdates } from "../components/AppUpdates";
 export default function Profile() {
   const { prefs, setPrefs, records, session, status, sync, resetLocal } =
       useStore(),
@@ -44,9 +46,9 @@ export default function Profile() {
     try {
       const result = await fn();
       setMessage(typeof result === "string" ? result : success);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMessageError(true);
-      setMessage(e.message);
+      setMessage(formatAuthError(e));
     } finally {
       setBusy(false);
     }
@@ -80,6 +82,10 @@ export default function Profile() {
                 onChangeText={setNewPassword}
                 secure
               />
+              <Label small muted>
+                If you opened a password reset email, set your new password
+                here.
+              </Label>
               <Button
                 secondary
                 disabled={newPassword.length < 8 || busy}
@@ -97,12 +103,14 @@ export default function Profile() {
               </Button>
               <Button
                 secondary
+                disabled={busy}
                 onPress={() => void run(sync, "Synchronization finished")}
               >
                 Sync now
               </Button>
               <Button
                 secondary
+                disabled={busy}
                 onPress={() =>
                   void run(async () => {
                     const { error } = await supabase!.auth.signOut();
@@ -129,21 +137,47 @@ export default function Profile() {
                     autoComplete="email"
                     placeholder="you@example.com"
                   />
+                  <Label small muted>
+                    Sign in by email link without a password. Open the newest
+                    link on this device.
+                  </Label>
+                  <Button
+                    disabled={busy || !email.trim()}
+                    onPress={() =>
+                      void run(async () => {
+                        const { error } = await supabase!.auth.signInWithOtp({
+                          email: email.trim(),
+                          options: {
+                            emailRedirectTo: authenticationRedirect(),
+                            shouldCreateUser: false,
+                          },
+                        });
+                        if (error) throw error;
+                      }, "If this address has an account, check your inbox and spam for a sign-in link. Open the newest link on this device.")
+                    }
+                  >
+                    Email me a sign-in link
+                  </Button>
                   <Field
                     label="Password"
                     value={password}
                     onChangeText={setPassword}
-                    placeholder="At least 8 characters"
+                    placeholder="Your password"
                     autoComplete="current-password"
                     secure
                   />
+                  <Label small muted>
+                    Use your existing password to sign in. To create a new
+                    account, choose a password with at least 8 characters.
+                  </Label>
                   <Button
-                    disabled={busy || !email || password.length < 8}
+                    secondary
+                    disabled={busy || !email.trim() || !password.length}
                     onPress={() =>
                       void run(async () => {
                         const { error } =
                           await supabase!.auth.signInWithPassword({
-                            email,
+                            email: email.trim(),
                             password,
                           });
                         if (error) throw error;
@@ -155,7 +189,7 @@ export default function Profile() {
                   </Button>
                   <Button
                     secondary
-                    disabled={busy || !email || password.length < 8}
+                    disabled={busy || !email.trim() || password.length < 8}
                     onPress={() =>
                       void run(async () => {
                         const { data, error } = await supabase!.auth.signUp({
@@ -169,8 +203,8 @@ export default function Profile() {
                         setPassword("");
                         return data.session
                           ? "Account created"
-                          : "Check your email to confirm your account.";
-                      }, "Account created. If email confirmation is enabled, confirm before signing in.")
+                          : "If a confirmation email is sent, check your inbox and spam. If you've registered before, use Email me a sign-in link or Request password reset.";
+                      }, "Account request received")
                     }
                   >
                     Create account
@@ -188,14 +222,14 @@ export default function Profile() {
                           },
                         });
                         if (error) throw error;
-                      }, "Check your email for a new confirmation link. Use the newest email.")
+                      }, "If confirmation is needed, check your inbox and spam for the newest confirmation email.")
                     }
                   >
                     Resend confirmation email
                   </Button>
                   <Button
                     secondary
-                    disabled={!email || busy}
+                    disabled={!email.trim() || busy}
                     onPress={() =>
                       void run(async () => {
                         const { error } =
@@ -206,7 +240,7 @@ export default function Profile() {
                             },
                           );
                         if (error) throw error;
-                      }, "Check your email. Open the reset link, then set your new password here.")
+                      }, "If this address has an account, check your inbox and spam for a reset link. Open the newest link on this device, then set your new password here.")
                     }
                   >
                     Request password reset
@@ -272,6 +306,7 @@ export default function Profile() {
           </Button>
         </Card>
       </View>
+      <AppUpdates />
       <Disclosure title="Home shortcuts">
         <View style={styles.grid}>
           {domains.map((d) => (

@@ -1,6 +1,6 @@
 # Homies OS
 
-A mobile-first personal command center built with Expo Router, React Native and TypeScript. The current app is a local-first MVP. The Supabase database and three authenticated server functions are deployed; the browser app is hosted at https://dasvidaniya.vercel.app. It is not a completed implementation of every feature in the project brief.
+A mobile-first personal command center built with Expo Router, React Native and TypeScript. The current app is a local-first MVP. The Supabase database and four authenticated server functions are deployed; the browser app is hosted at https://dasvidaniya.vercel.app. It is not a completed implementation of every feature in the project brief.
 
 The latest email-link fix is published: signup, confirmation resend and recovery
 use the current website's account page. Set Supabase's Site URL and redirect
@@ -55,7 +55,7 @@ does not require pushing the database again.
 3. Apply the schema: `npx supabase db push`. Review the migration first. It creates owner-only RLS, a private engineering file bucket and server-only AI budget controls.
 4. Deploy: `npx supabase functions deploy assistant`, `npx supabase functions deploy documents`, `npx supabase functions deploy account`.
 5. Copy `.env.example` to `.env`. Set the public project URL and publishable/anonymous client key in the two EXPO_PUBLIC fields. These values identify the project; they are not a service-role key.
-6. In Supabase Auth settings configure your deployed website URL and `homiesos://` redirect. Keep email verification enabled and configure a reliable SMTP service for real users. Use a strong password.
+6. In Supabase Auth settings configure your deployed website URL and the exact `homiesos://profile` redirect. Keep email verification enabled and configure a reliable SMTP service for real users. Use a strong password.
 7. Restart Expo, open Profile, create your account, confirm your email, and sign in. Press **Sync now** on both devices to verify the same records appear. Local sandbox records remain separate.
 
 The server uses Supabase's built-in secret bindings. **Never place SUPABASE_SERVICE_ROLE_KEY or OPENAI_API_KEY in the frontend `.env`.** Server functions verify the bearer token with Supabase Auth even though gateway `verify_jwt` is disabled to support newer signing keys.
@@ -88,11 +88,15 @@ Browser tests require Chromium. Set `PLAYWRIGHT_CHROMIUM_PATH` to your executabl
 
 If the machine has a read-only home directory, run commands with `npm_config_cache=/workspace/.npm-cache DOTSLASH_CACHE=/workspace/.dotslash-cache EXPO_NO_TELEMETRY=1`. `EXPO_OFFLINE=1` uses Expo's bundled SDK compatibility data when the Expo metadata API is blocked; package downloads still use npm with integrity/TLS checks. The saved onboarding install script captures these settings. Use the existing checkout; this task is already isolated, so do not create a worktree unless requested.
 
+## Phone installation
+
+See [the existing Homies Expo project and phone setup](docs/EXPO-SETUP.md) for Android APK status, iPhone testing, and the exact email callback. Use the existing linked app rather than creating another project. Version 0.1.2 adds compatible in-app updates; see [app update instructions](docs/APP-UPDATES.md). See [sign-in and AI credit troubleshooting](docs/AUTH-HELP.md) if email links open the website, passwords are rejected or OpenAI reports missing quota.
+
 ## Deployment
 
 - Web: `npm run build:web`, deploy `dist` to a static host. `vercel.json` configures SPA fallback. Set public Supabase build variables on your host; set server keys only in Supabase. Use HTTPS.
-- Android/iOS: create an Expo account, run `npx eas-cli build:configure`, fill in your own application identifiers/project ID and `npx eas-cli build --profile preview --platform android` or production builds for each platform. Native development clients can be built with `npx eas-cli build --profile development` after installing `expo-dev-client` via `npx expo install expo-dev-client`.
-- iOS distribution needs Apple Developer membership; Android publishing needs Play Console membership. EAS builds and store submission have not been run. Before publishing, supply a privacy policy and test email verification, password recovery, permission denial, account deletion, synchronization and notifications on physical devices.
+- Android/iOS: this checkout is already linked to `@andravads/ads-assistant`, EAS project `64949f00-07a2-4515-a279-64d90ff38443`. Use the completed Android APK and iPhone signing route in [phone setup](docs/EXPO-SETUP.md). Reuse the existing identifiers, project and signing configuration for future preview builds. SDK-compatible `expo-dev-client` is already installed; the existing development profile remains available.
+- iOS distribution needs Apple Developer membership; Android publishing needs Play Console membership. The Android preview APK build has completed; see [phone setup](docs/EXPO-SETUP.md) for its installation link and download-verification limits. iOS builds and store submissions have not been run. Before publishing, supply a privacy policy and test email verification, password recovery, permission denial, account deletion, synchronization and notifications on physical devices.
 - Never use the default template icon for a public release; branding assets are pending.
 
 ## Not yet implemented / release limits

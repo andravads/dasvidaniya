@@ -10,6 +10,8 @@ import {
   Modal,
   ActivityIndicator,
   TextInputProps,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { ChevronDown, ChevronUp } from "lucide-react-native";
 import { useStore } from "../state/Store";
@@ -140,6 +142,7 @@ export function Button({
         borderRadius: 12,
         minHeight: 48,
         minWidth: 48,
+        maxWidth: "100%",
         paddingHorizontal: 16,
         paddingVertical: 12,
         flexDirection: "row",
@@ -344,7 +347,8 @@ export function Dialog({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{
           flex: 1,
           backgroundColor: "#0009",
@@ -373,11 +377,12 @@ export function Dialog({
             style={{ marginTop: 20 }}
             contentContainerStyle={{ gap: 15, paddingBottom: 10 }}
             keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
           >
             {children}
           </ScrollView>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -460,3 +465,4 @@ export function useWords() {
         subtitle: "A little clarity. A lot of possibilities.",
       };
 }
+

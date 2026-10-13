@@ -1,9 +1,23 @@
 {
   "expo": {
     "name": "Homies OS",
-    "slug": "homies-os",
+    "slug": "ads-assistant",
     "scheme": "homiesos",
-    "version": "0.1.0",
+    "version": "0.1.2",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "enabled": true,
+      "url": "https://u.expo.dev/64949f00-07a2-4515-a279-64d90ff38443",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "extra": {
+      "eas": {
+        "projectId": "64949f00-07a2-4515-a279-64d90ff38443"
+      }
+    },
     "orientation": "default",
     "userInterfaceStyle": "automatic",
     "icon": "./assets/icon.png",
@@ -12,7 +26,8 @@
       "expo-notifications",
       "expo-document-picker",
       "expo-secure-store",
-      "expo-sharing"
+      "expo-sharing",
+      "expo-dev-client"
     ],
     "ios": {
       "supportsTablet": true,
@@ -23,12 +38,14 @@
       }
     },
     "android": {
-      "package": "com.homies.os"
+      "package": "com.homies.os",
+      "versionCode": 3
     },
     "web": {
       "bundler": "metro",
       "output": "single",
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "owner": "andravads"
   }
 }

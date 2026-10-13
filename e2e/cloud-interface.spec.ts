@@ -248,6 +248,10 @@ test("a sign-in failure is clearly shown and account settings remain usable", as
     route.fulfill({
       status: 400,
       contentType: "application/json",
+      headers: {
+        "X-Supabase-Api-Version": "2024-01-01",
+        "Access-Control-Expose-Headers": "X-Supabase-Api-Version",
+      },
       body: JSON.stringify({
         code: "invalid_credentials",
         msg: "Invalid login credentials",
@@ -261,7 +265,10 @@ test("a sign-in failure is clearly shown and account settings remain usable", as
   await page.getByLabel("Password", { exact: true }).fill("test-password-only");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(
-    page.getByText("Invalid login credentials", { exact: true }),
+    page.getByText(
+      "The email or password was not accepted. Try an email sign-in link or reset your password.",
+      { exact: true },
+    ),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Sign in", exact: true }),
@@ -271,7 +278,262 @@ test("a sign-in failure is clearly shown and account settings remain usable", as
   );
 });
 
-test("confirmation, resend and recovery links return to the app instead of localhost defaults", async ({
+test("email-link sign-in needs no password and preserves its redirect", async ({
+  page,
+}) => {
+  const projectURL = process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
+  if (!projectURL) throw new Error("Public project URL is required");
+  let invocation: { url: string; body: any } | undefined;
+  await page.route(projectURL + "/auth/v1/otp?**", async (route) => {
+    invocation = {
+      url: route.request().url(),
+      body: route.request().postDataJSON(),
+    };
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: "{}",
+    });
+  });
+  await page.goto("/profile");
+  await page
+    .getByLabel("Email", { exact: true })
+    .fill(" browser-test@example.com ");
+  await expect(page.getByLabel("Password", { exact: true })).toHaveValue("");
+  await expect(
+    page.getByRole("button", { name: "Sign in", exact: true }),
+  ).toBeDisabled();
+  await page
+    .getByRole("button", { name: "Email me a sign-in link", exact: true })
+    .click();
+  await expect(
+    page.getByText(
+      /If this address has an account, check your inbox and spam for a sign-in link/,
+    ),
+  ).toBeVisible();
+  expect(invocation?.body.email).toBe("browser-test@example.com");
+  expect(invocation?.body.create_user).toBe(false);
+  expect(new URL(invocation!.url).searchParams.get("redirect_to")).toBe(
+    new URL("/profile", page.url()).toString(),
+  );
+});
+
+test("website update guidance preserves unfinished work and offers no native restart", async ({
+  page,
+}) => {
+  const updateRequests: string[] = [];
+  await page.route("https://u.expo.dev/**", async (route) => {
+    updateRequests.push(route.request().url());
+    await route.abort();
+  });
+  await page.goto("/profile");
+  await page
+    .getByLabel("Email", { exact: true })
+    .fill("unfinished@example.com");
+  await expect(page.getByText("App updates", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(
+      "The website updates automatically. Refresh this page after saving any unfinished work.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Check for updates", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Restart to update", exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel("Email", { exact: true })).toHaveValue(
+    "unfinished@example.com",
+  );
+  expect(updateRequests).toEqual([]);
+});
+
+test("existing six- and seven-character passwords can sign in without weakening new-password rules", async ({
+  page,
+}) => {
+  const { requests } = await mockCloud(page);
+  await page.goto("/profile");
+  for (const password of ["six123", "seven12"]) {
+    await page
+      .getByLabel("Email", { exact: true })
+      .fill("browser-test@example.com");
+    await page.getByLabel("Password", { exact: true }).fill(password);
+    await expect(
+      page.getByRole("button", { name: "Sign in", exact: true }),
+    ).toBeEnabled();
+    await expect(
+      page.getByRole("button", { name: "Create account", exact: true }),
+    ).toBeDisabled();
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "Sign out", exact: true }),
+    ).toBeVisible();
+    expect(
+      requests.filter((request) => request.path === "/auth/v1/token").at(-1)
+        ?.body.password,
+    ).toBe(password);
+    await page
+      .getByLabel("New password (signed-in account)", { exact: true })
+      .fill(password);
+    await expect(
+      page.getByRole("button", { name: "Update password", exact: true }),
+    ).toBeDisabled();
+    await page
+      .getByLabel("New password (signed-in account)", { exact: true })
+      .fill("new-pass-8");
+    await expect(
+      page.getByRole("button", { name: "Update password", exact: true }),
+    ).toBeEnabled();
+    await page.getByRole("button", { name: "Sign out", exact: true }).click();
+    await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
+  }
+  await page.getByLabel("Password", { exact: true }).fill("new-pass-8");
+  await expect(
+    page.getByRole("button", { name: "Create account", exact: true }),
+  ).toBeEnabled();
+});
+
+for (const failure of [
+  {
+    code: "email_not_confirmed",
+    route: "/auth/v1/token?**",
+    button: "Sign in",
+    message: /Confirm your email before signing in with a password/,
+  },
+  {
+    code: "email_address_not_authorized",
+    route: "/auth/v1/otp?**",
+    button: "Email me a sign-in link",
+    message: /Email delivery is restricted for this app/,
+  },
+  {
+    code: "over_email_send_rate_limit",
+    route: "/auth/v1/otp?**",
+    button: "Email me a sign-in link",
+    message: /Too many email requests.*inbox and spam/,
+  },
+  {
+    code: "signup_disabled",
+    route: "/auth/v1/signup?**",
+    button: "Create account",
+    message: /Account creation is unavailable.*email sign-in link/,
+  },
+]) {
+  test(`authentication failure ${failure.code} gives actionable guidance`, async ({
+    page,
+  }) => {
+    const projectURL = process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
+    if (!projectURL) throw new Error("Public project URL is required");
+    await page.route(projectURL + failure.route, (route) =>
+      route.fulfill({
+        status: failure.code === "over_email_send_rate_limit" ? 429 : 400,
+        contentType: "application/json",
+        headers: {
+          "X-Supabase-Api-Version": "2024-01-01",
+          "Access-Control-Expose-Headers": "X-Supabase-Api-Version",
+        },
+        body: JSON.stringify({
+          code: failure.code,
+          msg: "Provider authentication error",
+        }),
+      }),
+    );
+    await page.goto("/profile");
+    await page
+      .getByLabel("Email", { exact: true })
+      .fill("browser-test@example.com");
+    await page
+      .getByLabel("Password", { exact: true })
+      .fill("test-password-only");
+    await page
+      .getByRole("button", { name: failure.button, exact: true })
+      .click();
+    await expect(page.getByText(failure.message)).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: failure.button, exact: true }),
+    ).toBeEnabled();
+  });
+}
+
+test("a delayed account caption cannot enter the local sandbox after logout", async ({
+  page,
+}) => {
+  await mockCloud(page);
+  const projectURL = process.env.EXPO_PUBLIC_SUPABASE_URL!.replace(/\/$/, "");
+  let release!: () => void;
+  let received!: () => void;
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const requestReceived = new Promise<void>((resolve) => {
+    received = resolve;
+  });
+  await page.route(projectURL + "/functions/v1/assistant", async (route) => {
+    received();
+    await pending;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ text: "Delayed private account caption" }),
+    });
+  });
+  await page.goto("/profile");
+  await page
+    .getByLabel("Email", { exact: true })
+    .fill("browser-test@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("test-password-only");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Sign out", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Workspace", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Content Studio", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Write a draft manually", exact: true })
+    .click();
+  await page
+    .getByLabel("Content topic", { exact: true })
+    .fill("Private account topic");
+  await page
+    .getByRole("button", { name: "Generate AI caption", exact: true })
+    .click();
+  await requestReceived;
+  await page.getByRole("link", { name: "Profile", exact: true }).click();
+  await page.getByRole("button", { name: "Sign out", exact: true }).click();
+  await expect(page.getByLabel("Email", { exact: true })).toBeVisible();
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem("homies:v1:local")))
+    .not.toBeNull();
+  const responseReceived = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === "/functions/v1/assistant",
+  );
+  release();
+  await (await responseReceived).finished();
+  // Let the completed response reach the app before checking an absent record.
+  await page.waitForTimeout(500);
+  expect(
+    await page.evaluate(() =>
+      JSON.parse(localStorage.getItem("homies:v1:local") ?? "[]").some(
+        (record: any) =>
+          record.kind === "draft" &&
+          record.payload.text === "Delayed private account caption",
+      ),
+    ),
+  ).toBe(false);
+  await page.getByRole("link", { name: "Workspace", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Content Studio", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("Caption: Private account topic", { exact: true }),
+  ).toHaveCount(0);
+});
+
+test("duplicate signup responses do not promise email delivery and email requests retain their destinations", async ({
   page,
 }) => {
   const projectURL = process.env.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
@@ -308,21 +570,31 @@ test("confirmation, resend and recovery links return to the app instead of local
     .getByRole("button", { name: "Create account", exact: true })
     .click();
   await expect(
+    page.getByText(
+      "If a confirmation email is sent, check your inbox and spam. If you've registered before, use Email me a sign-in link or Request password reset.",
+      {
+        exact: true,
+      },
+    ),
+  ).toBeVisible();
+  await expect(
     page.getByText("Check your email to confirm your account.", {
       exact: true,
     }),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await page
     .getByRole("button", { name: "Resend confirmation email", exact: true })
     .click();
   await expect(
-    page.getByText(/Check your email for a new confirmation link/),
+    page.getByText(/If confirmation is needed, check your inbox and spam/),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Request password reset", exact: true })
     .click();
   await expect(
-    page.getByText(/Open the reset link, then set your new password here/),
+    page.getByText(
+      /If this address has an account.*reset link.*set your new password here/,
+    ),
   ).toBeVisible();
   for (const routeName of ["signup", "resend", "recover"]) {
     const request = requests.find((r) =>

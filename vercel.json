@@ -6,5 +6,10 @@
       "source": "/((?!_expo/|assets/|favicon.ico).*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "setup/expo-project": false
+    }
+  }
 }

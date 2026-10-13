@@ -211,7 +211,10 @@ function Engineering() {
           throw new Error(
             "Local retrieval supports TXT only. Sign in to store PDF, DOCX, XLSX or images privately.",
           );
-        const text = new TextDecoder().decode(buffer);
+        const text =
+          Platform.OS === "web" && asset.file
+            ? await asset.file.text()
+            : await new File(asset.uri).text();
         put("note", {
           type: "document",
           domain: "engineering",
@@ -1333,3 +1336,4 @@ function Habits() {
     </View>
   );
 }
+

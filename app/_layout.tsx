@@ -5,6 +5,8 @@ import {
   Pressable,
   useWindowDimensions,
   Text,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Slot, usePathname, useRouter } from "expo-router";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -140,7 +142,10 @@ function Shell() {
             </View>
           </View>
         )}
-        <View style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
           {!wide && (
             <Row
               style={{
@@ -182,6 +187,7 @@ function Shell() {
               alignSelf: "center",
             }}
             keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
           >
             <Slot />
           </ScrollView>
@@ -211,7 +217,7 @@ function Shell() {
               {navigation}
             </View>
           )}
-        </View>
+        </KeyboardAvoidingView>
       </View>
     </SafeAreaView>
   );
@@ -225,3 +231,4 @@ export default function Layout() {
     </SafeAreaProvider>
   );
 }
+
