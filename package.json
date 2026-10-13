@@ -2,7 +2,7 @@
   "name": "homies-os",
   "description": "Personal command center for work, business and daily life",
   "license": "0BSD",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "expo-router/entry",
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
