@@ -70,7 +70,7 @@ Photos/slide images remain in page memory; saved drafts preserve text and captio
 - Exact PR head `5ef25ee2f898544a7e2cff636abb4a9ddbf974a3` was restored and all 85 tracked file hashes verified before the scoped fix. The built app includes the caption guard saved in commit `0cb08c771c50051a1d8ecdfc9ad78aad8103ec67`.
 - Fixed a confirmed account-isolation race: a delayed signed-in AI caption could enter the local sandbox after logout. A generation guard now discards the stale response, with desktop and phone browser regression coverage.
 - TypeScript passes; all 68 unit/database/provider/carousel/auth/notification tests pass.
-- All 40 browser workflows pass at desktop and phone dimensions, including navigation, tasks, email callbacks, logout/account separation and photo/caption exports. Authenticated backend responses are mocked; these are not physical-iPhone Safari checks.
+- All 40 browser workflows pass at desktop and phone dimensions, including navigation, tasks, email redirect destinations, logout/account separation and photo/caption exports. Authenticated backend responses are mocked; these are not physical-iPhone Safari checks.
 - Expo dependency compatibility passes and Expo Doctor passes 21/21 checks using the inherited proxy with Node's environment-proxy support.
 - Final Android and iOS Hermes exports pass. The Android EAS build completed its native prebuild, bundling, compilation and signing.
 - Live read-only Supabase checks confirm email signup with required confirmation, denied anonymous reads of five app tables and the tasks view, and 401 rejection for missing/invalid carousel sessions. These do not prove authenticated two-account isolation or email delivery.

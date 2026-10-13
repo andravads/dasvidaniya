@@ -1,6 +1,6 @@
 # Homies OS
 
-A mobile-first personal command center built with Expo Router, React Native and TypeScript. The current app is a local-first MVP. The Supabase database and three authenticated server functions are deployed; the browser app is hosted at https://dasvidaniya.vercel.app. It is not a completed implementation of every feature in the project brief.
+A mobile-first personal command center built with Expo Router, React Native and TypeScript. The current app is a local-first MVP. The Supabase database and four authenticated server functions are deployed; the browser app is hosted at https://dasvidaniya.vercel.app. It is not a completed implementation of every feature in the project brief.
 
 The latest email-link fix is published: signup, confirmation resend and recovery
 use the current website's account page. Set Supabase's Site URL and redirect
@@ -95,7 +95,7 @@ See [the existing Homies Expo project and phone setup](docs/EXPO-SETUP.md) for A
 ## Deployment
 
 - Web: `npm run build:web`, deploy `dist` to a static host. `vercel.json` configures SPA fallback. Set public Supabase build variables on your host; set server keys only in Supabase. Use HTTPS.
-- Android/iOS: create an Expo account, run `npx eas-cli build:configure`, fill in your own application identifiers/project ID and `npx eas-cli build --profile preview --platform android` or production builds for each platform. Native development clients can be built with `npx eas-cli build --profile development` after installing `expo-dev-client` via `npx expo install expo-dev-client`.
+- Android/iOS: this checkout is already linked to `@andravads/ads-assistant`, EAS project `64949f00-07a2-4515-a279-64d90ff38443`. Use the completed Android APK and iPhone signing route in [phone setup](docs/EXPO-SETUP.md). Reuse the existing identifiers, project and signing configuration for future preview builds. SDK-compatible `expo-dev-client` is already installed; the existing development profile remains available.
 - iOS distribution needs Apple Developer membership; Android publishing needs Play Console membership. The Android preview APK build has completed; see [phone setup](docs/EXPO-SETUP.md) for its installation link and download-verification limits. iOS builds and store submissions have not been run. Before publishing, supply a privacy policy and test email verification, password recovery, permission denial, account deletion, synchronization and notifications on physical devices.
 - Never use the default template icon for a public release; branding assets are pending.
 
