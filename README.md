@@ -55,7 +55,7 @@ does not require pushing the database again.
 3. Apply the schema: `npx supabase db push`. Review the migration first. It creates owner-only RLS, a private engineering file bucket and server-only AI budget controls.
 4. Deploy: `npx supabase functions deploy assistant`, `npx supabase functions deploy documents`, `npx supabase functions deploy account`.
 5. Copy `.env.example` to `.env`. Set the public project URL and publishable/anonymous client key in the two EXPO_PUBLIC fields. These values identify the project; they are not a service-role key.
-6. In Supabase Auth settings configure your deployed website URL and `homiesos://` redirect. Keep email verification enabled and configure a reliable SMTP service for real users. Use a strong password.
+6. In Supabase Auth settings configure your deployed website URL and the exact `homiesos://profile` redirect. Keep email verification enabled and configure a reliable SMTP service for real users. Use a strong password.
 7. Restart Expo, open Profile, create your account, confirm your email, and sign in. Press **Sync now** on both devices to verify the same records appear. Local sandbox records remain separate.
 
 The server uses Supabase's built-in secret bindings. **Never place SUPABASE_SERVICE_ROLE_KEY or OPENAI_API_KEY in the frontend `.env`.** Server functions verify the bearer token with Supabase Auth even though gateway `verify_jwt` is disabled to support newer signing keys.
@@ -87,6 +87,10 @@ Browser tests require Chromium. Set `PLAYWRIGHT_CHROMIUM_PATH` to your executabl
 ### Cloud workspace specifics
 
 If the machine has a read-only home directory, run commands with `npm_config_cache=/workspace/.npm-cache DOTSLASH_CACHE=/workspace/.dotslash-cache EXPO_NO_TELEMETRY=1`. `EXPO_OFFLINE=1` uses Expo's bundled SDK compatibility data when the Expo metadata API is blocked; package downloads still use npm with integrity/TLS checks. The saved onboarding install script captures these settings. Use the existing checkout; this task is already isolated, so do not create a worktree unless requested.
+
+## Phone installation
+
+See [the existing Homies Expo project and phone setup](docs/EXPO-SETUP.md) for Android APK status, iPhone testing, and the exact email callback. Use the existing linked app rather than creating another project.
 
 ## Deployment
 

@@ -80,6 +80,10 @@ export default function Profile() {
                 onChangeText={setNewPassword}
                 secure
               />
+              <Label small muted>
+                If you opened a password reset email, set your new password
+                here.
+              </Label>
               <Button
                 secondary
                 disabled={newPassword.length < 8 || busy}
@@ -97,12 +101,14 @@ export default function Profile() {
               </Button>
               <Button
                 secondary
+                disabled={busy}
                 onPress={() => void run(sync, "Synchronization finished")}
               >
                 Sync now
               </Button>
               <Button
                 secondary
+                disabled={busy}
                 onPress={() =>
                   void run(async () => {
                     const { error } = await supabase!.auth.signOut();
@@ -143,7 +149,7 @@ export default function Profile() {
                       void run(async () => {
                         const { error } =
                           await supabase!.auth.signInWithPassword({
-                            email,
+                            email: email.trim(),
                             password,
                           });
                         if (error) throw error;
@@ -152,6 +158,24 @@ export default function Profile() {
                     }
                   >
                     Sign in
+                  </Button>
+                  <Button
+                    secondary
+                    disabled={busy || !email.trim()}
+                    onPress={() =>
+                      void run(async () => {
+                        const { error } = await supabase!.auth.signInWithOtp({
+                          email: email.trim(),
+                          options: {
+                            emailRedirectTo: authenticationRedirect(),
+                            shouldCreateUser: false,
+                          },
+                        });
+                        if (error) throw error;
+                      }, "Check your email. Open the sign-in link on this device.")
+                    }
+                  >
+                    Email me a sign-in link
                   </Button>
                   <Button
                     secondary

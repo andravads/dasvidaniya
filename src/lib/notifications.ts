@@ -1,16 +1,34 @@
 import { Platform } from "react-native";
 import { Preferences, Task, inQuietHours, zonedInstant } from "./domain";
+let notificationsReady:
+  Promise<typeof import("expo-notifications")> | undefined;
+function notifications() {
+  return (notificationsReady ??= import("expo-notifications").then(
+    async (N) => {
+      // Without a handler, the OS suppresses reminders while the app is open.
+      N.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowBanner: true,
+          shouldShowList: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+        }),
+      });
+      if (Platform.OS === "android")
+        await N.setNotificationChannelAsync("tasks", {
+          name: "Tasks and routines",
+          importance: N.AndroidImportance.DEFAULT,
+        });
+      return N;
+    },
+  ));
+}
 export async function requestNotifications() {
   if (Platform.OS === "web")
     throw new Error(
       "Background reminders require an Android/iOS development or production build. Web reminders are not implemented.",
     );
-  const N = await import("expo-notifications");
-  if (Platform.OS === "android")
-    await N.setNotificationChannelAsync("tasks", {
-      name: "Tasks and routines",
-      importance: N.AndroidImportance.DEFAULT,
-    });
+  const N = await notifications();
   const p = await N.requestPermissionsAsync();
   if (!p.granted)
     throw new Error(
@@ -25,7 +43,7 @@ export async function scheduleReminder(
 ) {
   if (Platform.OS === "web") return;
   if (!prefs.notifications || !task.reminder || task.status === "done") return;
-  const N = await import("expo-notifications");
+  const N = await notifications();
   const when = zonedInstant(task.due, task.time, prefs.timezone);
   if (
     when.getTime() <= Date.now() ||
@@ -48,13 +66,13 @@ export async function scheduleReminder(
 }
 export async function cancelReminder(id: string) {
   if (Platform.OS !== "web") {
-    const N = await import("expo-notifications");
+    const N = await notifications();
     await N.cancelScheduledNotificationAsync(id);
   }
 }
 export async function clearReminders() {
   if (Platform.OS !== "web") {
-    const N = await import("expo-notifications");
+    const N = await notifications();
     await N.cancelAllScheduledNotificationsAsync();
   }
 }

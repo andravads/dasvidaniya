@@ -12,6 +12,7 @@ import {
   invoke,
   listenForNativeAuthentication,
 } from "../lib/backend";
+import { createAuthSessionListener } from "../lib/authSession";
 import {
   RecordItem,
   Kind,
@@ -71,6 +72,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const key = useRef("");
   const generation = useRef(0);
   const inFlight = useRef<Promise<void> | null>(null);
+  const sessionId = useRef<string | undefined>(undefined);
   const prefs = {
     ...defaults,
     ...records.find((r) => r.kind === "preferences" && !r.deleted)?.payload,
@@ -82,6 +84,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setReady(false);
       setSession(s);
       await clearReminders().catch(() => {});
+      if (!alive || g !== generation.current) return;
       const k = "homies:v1:" + (s?.user.id ?? "local");
       key.current = k;
       try {
@@ -132,16 +135,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       }
     };
     if (supabase) {
-      supabase.auth.getSession().then(({ data, error }) => {
-        if (error) setError(error.message);
-        if (alive) void select(data.session);
-      });
-      const { data } = supabase.auth.onAuthStateChange((_e, s) => {
-        if (s?.user.id !== sessionId.current) {
+      let selected = false;
+      const updateSession = (s: Session | null) => {
+        if (!alive) return;
+        // Refresh tokens and user details without reloading account records.
+        setSession(s);
+        if (!selected || s?.user.id !== sessionId.current) {
+          selected = true;
           sessionId.current = s?.user.id;
           void select(s);
         }
-      });
+      };
+      const { data } = supabase.auth.onAuthStateChange(
+        createAuthSessionListener(updateSession),
+      );
+      supabase.auth
+        .getSession()
+        .then(({ data, error }) => {
+          if (!alive) return;
+          if (error) setError(error.message);
+          if (!selected) updateSession(data.session);
+        })
+        .catch((e: Error) => {
+          if (!alive) return;
+          setError(e.message);
+          if (!selected) updateSession(null);
+        });
       const stopAuthLinks = listenForNativeAuthentication(setError);
       return () => {
         alive = false;
@@ -154,10 +173,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       alive = false;
     };
   }, []);
-  const sessionId = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    sessionId.current = session?.user.id;
-  }, [session]);
   useEffect(() => {
     if (ready) {
       AsyncStorage.setItem(key.current, JSON.stringify(records)).catch(() =>

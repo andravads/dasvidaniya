@@ -2,16 +2,22 @@ import "react-native-url-polyfill/auto";
 import { createClient } from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
-import { Platform } from "react-native";
+import { AppState, Platform } from "react-native";
 import * as Linking from "expo-linking";
-import { nativeAuthCallback } from "./authCallback";
+import Constants, { ExecutionEnvironment } from "expo-constants";
+import { completeAuthCallback } from "./authCallback";
+import { nativeAuthenticationRedirect } from "./authSession";
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 export function authenticationRedirect() {
   if (Platform.OS === "web" && typeof window !== "undefined") {
     return new URL("/profile", window.location.origin).toString();
   }
-  return Linking.createURL("profile", { scheme: "homiesos" });
+  // Expo Go owns exp:// links; installed Homies builds own homiesos:// links.
+  return nativeAuthenticationRedirect(
+    Constants.executionEnvironment === ExecutionEnvironment.StoreClient,
+    () => Linking.createURL("profile"),
+  );
 }
 const authStorage =
   Platform.OS === "web"
@@ -36,17 +42,14 @@ export function listenForNativeAuthentication(
   onError: (message: string) => void,
 ) {
   if (Platform.OS === "web" || !supabase) return () => {};
+  const auth = supabase.auth;
   let active = true;
+  let handledUrl = "";
   const accept = async (url: string | null) => {
-    if (!active || !url) return;
+    if (!active || !url || url === handledUrl) return;
+    handledUrl = url;
     try {
-      const tokens = nativeAuthCallback(url);
-      if (!tokens || !active) return;
-      const { error } = await supabase!.auth.setSession(tokens);
-      if (error)
-        throw new Error(
-          "The email link could not sign you in. Request a new email.",
-        );
+      await completeAuthCallback(url, authenticationRedirect(), auth);
     } catch (e) {
       if (active)
         onError(
@@ -62,9 +65,17 @@ export function listenForNativeAuthentication(
     .catch(() => {
       if (active) onError("Could not open the email link.");
     });
+  const refresh = (state: string | null) => {
+    if (state === "active") auth.startAutoRefresh();
+    else auth.stopAutoRefresh();
+  };
+  refresh(AppState.currentState);
+  const lifecycle = AppState.addEventListener("change", refresh);
   return () => {
     active = false;
     subscription.remove();
+    lifecycle.remove();
+    auth.stopAutoRefresh();
   };
 }
 export async function invoke(name: string, body: Record<string, unknown>) {
